@@ -1,15 +1,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useMovieResult } from "../contextApi/MovieProvider";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
+import { FaTelegramPlane } from "react-icons/fa";
 
 function Navbar() {
   const [handleSetMovie] = useMovieResult();
 
   const handleButton = () => {
-    toast.success("Refreshing the page")
-    setInterval(() => {
-      window.location.reload();
+    toast.success("Redirecting to Telegram...");
+    setTimeout(() => {
+      window.open("https://tpi.li/movie4u", "_blank");
     }, 1000);
   };
 
@@ -35,9 +36,10 @@ function Navbar() {
           <motion.button
             onClick={handleButton}
             whileTap={{ scale: 0.85 }}
-            className="cursor-pointer max-sm:w-full text-white px-4 py-3 max-extra-sm:py-2.5 max-extra-sm:text-lg  rounded-lg text-xl font-semibold lg:w-1/5 bg-gradient-to-r from-blue-500 to-sky-500 duration-300 shadow-lg ring-1"
+            className="cursor-pointer max-sm:w-full flex items-center justify-center gap-2 text-white px-4 py-3 max-extra-sm:py-2.5 max-extra-sm:text-lg rounded-lg text-lg  lg:w-1/4 bg-gradient-to-r from-blue-500 to-sky-500 duration-300 shadow-lg ring-1 whitespace-nowrap"
           >
-            Refresh
+            <span className="font-bold ">Join Us on</span>
+            <FaTelegramPlane size={30} className="bg-white rounded-full p-1 " color="#0088cc" />
           </motion.button>
         </div>
       </div>
