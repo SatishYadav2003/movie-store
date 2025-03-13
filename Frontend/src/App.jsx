@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { Routes, Route } from "react-router-dom";
 import IndividualMovieLister from "./components/IndividualMovieLister";
 import TopMotion from "./components/TopMotion";
+import BoundryBorder from "./components/BoundryBorder";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       </Routes>
 
       <Toaster />
+      <BoundryBorder />
     </div>
   );
 }
