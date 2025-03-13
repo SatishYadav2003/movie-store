@@ -8,7 +8,7 @@ import TopMotion from "./components/TopMotion";
 
 function App() {
   return (
-    <div className="min-h-screen w-full bg-sky-100 overflow-hidden">
+    <div className="min-h-screen w-full bg-sky-100 overflow-hidden relative">
       <TopMotion />
 
       <Routes>
