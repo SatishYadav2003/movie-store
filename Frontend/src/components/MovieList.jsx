@@ -38,6 +38,8 @@ function MovieList() {
 
   useEffect(() => {
     const preloadImages = async () => {
+      setLoading(true); 
+
       const imagePromises = currentMovies.map(
         (movie) =>
           new Promise((resolve, reject) => {
@@ -50,24 +52,22 @@ function MovieList() {
 
       try {
         await Promise.all(imagePromises);
-        setLoading(false);
       } catch (error) {
-        setLoading(false);
+        console.error("Image failed to load", error);
+      } finally {
+        setLoading(false); 
       }
     };
 
     preloadImages();
-  }, [currentMovies]);
-
-  // Scroll to top when changing pages
-  useEffect(() => {
-    window.scrollTo(0, 0);
   }, [currentPage]);
 
   const handlePageJump = () => {
     const pageNumber = parseInt(inputPage, 10);
     if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+      setLoading(true);
       setCurrentPage(pageNumber);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       toast.error(`Please enter a valid page number between 1 to ${totalPages}`);
     }
