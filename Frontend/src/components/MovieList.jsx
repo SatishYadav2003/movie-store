@@ -37,8 +37,6 @@ function MovieList() {
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-
     const preloadImages = async () => {
       const imagePromises = currentMovies.map(
         (movie) =>
@@ -61,14 +59,17 @@ function MovieList() {
     preloadImages();
   }, [currentMovies]);
 
+  // Scroll to top when changing pages
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
+
   const handlePageJump = () => {
     const pageNumber = parseInt(inputPage, 10);
     if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     } else {
-      toast.error(
-        `Please enter a valid page number between 1 to ${totalPages}`
-      );
+      toast.error(`Please enter a valid page number between 1 to ${totalPages}`);
     }
     setInputPage("");
   };
@@ -94,7 +95,6 @@ function MovieList() {
           {currentMovies.map((movie, index) => (
             <div key={index} onClick={() => handleMovieDetail(movie)}>
               <MovieTemplate
-                key={index}
                 movie_name={movie["Movie Name"]}
                 movie_category={movie["Movie Category"]}
                 movie_genre={movie["Genre"]}

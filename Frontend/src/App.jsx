@@ -11,8 +11,6 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-sky-100 overflow-hidden relative">
       <TopMotion />
-
-      {/* Main content - This grows to push footer down */}
       <div className="flex-1">
         <Routes>
           <Route
@@ -26,11 +24,7 @@ function App() {
           <Route path="/movie-detail" element={<IndividualMovieLister />} />
         </Routes>
       </div>
-
-      {/* Toast notifications */}
       <Toaster />
-
-      {/* Footer - Always at the bottom */}
       <BoundryBorder />
     </div>
   );
