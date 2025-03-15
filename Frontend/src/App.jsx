@@ -1,13 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import MovieProvider from "./contextApi/MovieProvider";
 import { Toaster } from "react-hot-toast";
 import { Routes, Route } from "react-router-dom";
 import IndividualMovieLister from "./components/IndividualMovieLister";
 import TopMotion from "./components/TopMotion";
-import BoundryBorder from "./components/BoundryBorder";
+
+
+import Login from "./components/Auth/Login";
+import { auth } from "./firebase/firebaseConfig.js";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import RequestMovie from "./components/RequestMovie";
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup the listener
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Logout Error:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-sky-100 overflow-hidden relative">
       <TopMotion />
@@ -17,15 +43,19 @@ function App() {
             path="/"
             element={
               <MovieProvider>
-                <HomePage />
+                <HomePage user={user} handleLogout={handleLogout} />
               </MovieProvider>
             }
           />
           <Route path="/movie-detail" element={<IndividualMovieLister />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route
+            path="/request-movie"
+            element={<RequestMovie user={user} loading={loading} />}
+          />
         </Routes>
       </div>
       <Toaster />
-      <BoundryBorder />
     </div>
   );
 }

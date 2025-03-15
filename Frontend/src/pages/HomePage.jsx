@@ -3,17 +3,18 @@ import Navbar from "../components/Navbar";
 import MovieUpdateBorder from "../components/MovieUpdateBorder";
 import MovieList from "../components/MovieList";
 
-function HomePage() {
+
+function HomePage({ user, handleLogout }) {
   useEffect(() => {
-    window.history.scrollRestoration = "manual"; 
-    window.scrollTo(0, 0); 
+    window.history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
   }, []);
 
   return (
     <div>
-      <Navbar />
+      <Navbar user={user} handleLogout={handleLogout} />
       <MovieUpdateBorder />
-      <MovieList />
+      <MovieList user={user} />
     </div>
   );
 }

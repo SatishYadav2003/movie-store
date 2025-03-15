@@ -4,8 +4,10 @@ import { useMovieResult } from "../contextApi/MovieProvider";
 import { useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { toast } from "react-hot-toast";
+import BoundryBorder from "./BoundryBorder";
+import RequestMovieButton from "./RequestMovieButton";
 
-function MovieList() {
+function MovieList({ user }) {
   const [, movies] = useMovieResult();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -38,7 +40,7 @@ function MovieList() {
 
   useEffect(() => {
     const preloadImages = async () => {
-      setLoading(true); 
+      setLoading(true);
 
       const imagePromises = currentMovies.map(
         (movie) =>
@@ -55,7 +57,7 @@ function MovieList() {
       } catch (error) {
         console.error("Image failed to load", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -69,13 +71,15 @@ function MovieList() {
       setCurrentPage(pageNumber);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      toast.error(`Please enter a valid page number between 1 to ${totalPages}`);
+      toast.error(
+        `Please enter a valid page number between 1 to ${totalPages}`
+      );
     }
     setInputPage("");
   };
 
   return (
-    <div>
+    <div className="relative">
       {loading ? (
         <div className="flex flex-col items-center">
           <ClipLoader color="#3498db" loading={loading} size={80} />
@@ -153,6 +157,8 @@ function MovieList() {
               Page {currentPage} of {totalPages}
             </p>
           </div>
+          <RequestMovieButton user={user} />
+          <BoundryBorder />
         </>
       )}
     </div>

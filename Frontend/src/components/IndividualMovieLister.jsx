@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import BoundryBorder from "./BoundryBorder";
 
 function IndividualMovieLister() {
   const location = useLocation();
@@ -149,8 +150,8 @@ function IndividualMovieLister() {
             </span>
           </motion.button>
         </div>
-
       </div>
+      <BoundryBorder />
     </>
   );
 }
