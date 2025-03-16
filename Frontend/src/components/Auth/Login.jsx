@@ -12,7 +12,7 @@ const Login = ({ setUser }) => {
     setLoading(true);
     const user = await signInWithGoogle();
     if (user) {
-      setUser(user);
+      // setUser(user);
       navigate("/");
     }
     setLoading(false);
@@ -26,7 +26,7 @@ const Login = ({ setUser }) => {
         className="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-md text-center text-gray-900"
       >
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">
-          Welcome to <span className="text-blue-500">MovieStore</span> 🎬
+          Welcome to <span className="text-blue-500">Movie4U</span> 🎬
         </h2>
 
         <motion.button
