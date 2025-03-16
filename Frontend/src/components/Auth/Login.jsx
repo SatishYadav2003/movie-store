@@ -5,6 +5,8 @@ import { FcGoogle } from "react-icons/fc";
 import { motion } from "framer-motion";
 import { auth } from "../../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import toast from "react-hot-toast";
+import { AiOutlineClose } from "react-icons/ai";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,7 +17,13 @@ const Login = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUserLoggedIn(true);
-        navigate("/");  // ✅ Ensure navigation happens when auth state updates
+        navigate("/");
+        const username = currentUser.displayName;
+        toast.success(`Welcome, ${username} to Movie4u`, {
+          style: {
+            textAlign: "center",
+          },
+        });
       }
     });
 
@@ -28,31 +36,43 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleClickEvent = () => {
+    navigate("/");
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4 relative">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md text-center"
+        className="bg-white p-6 py-12 sm:py-20 rounded-2xl shadow-lg w-full max-w-xs sm:max-w-sm relative"
       >
-        <h2 className="text-2xl font-bold mb-4">
-          Welcome to <span className="text-blue-500">Movie4U</span> 🎬
+        <button
+          className="absolute top-0 right-0 bg-white p-0.5 sm:p-1 rounded-2xl hover:bg-red-500 duration-300 hover:scale-105"
+          onClick={handleClickEvent}
+        >
+          <AiOutlineClose size={18} className="text-black hover:text-white" />
+        </button>
+
+        <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">
+          Welcome to{" "}
+          <span className="text-blue-600 whitespace-nowrap">Movie4u</span> 🎬
         </h2>
 
         <motion.button
           onClick={handleLogin}
           disabled={loading || userLoggedIn}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center justify-center gap-2 w-full py-2 font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md disabled:opacity-70"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center justify-center gap-2 w-[95%] sm:w-[90%] mx-auto  py-2 px-2 sm:py-2.5 text-sm sm:text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-70 transition-colors duration-200"
         >
-          <div className="p-1 border-2 border-white rounded-full bg-white">
-            <FcGoogle size={22} />
-          </div>
+          <span className="p-1.5 border-2 border-white rounded-full bg-white ">
+            <FcGoogle size={20} className="shrink-0" />
+          </span>
           {loading ? "Signing in..." : "Sign in with Google"}
         </motion.button>
 
-        <p className="mt-3 text-gray-500 text-sm">
+        <p className="mt-4 sm:mt-5 text-gray-600 text-xs sm:text-sm text-center leading-relaxed">
           Sign in to explore & request your favorite movies! 🍿
         </p>
       </motion.div>

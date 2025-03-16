@@ -35,17 +35,16 @@ function IndividualMovieLister() {
   };
 
   useEffect(() => {
-
-    const BASE_URL = process.env.REACT_BACKEND_APP_BASE_URL || "https://movie-store-backend.onrender.com";
+    const BASE_URL =
+    import.meta.env.REACT_APP_BACKEND_BASE_URL ||
+      "https://movie-store-backend.onrender.com";
 
     const fetchMovieDetails = async () => {
       try {
         setIsMovieLoading(true);
         setError(null);
 
-        const response = await axios.get(
-          `${BASE_URL}/api/movies/${movie_id}`
-        );
+        const response = await axios.get(`${BASE_URL}/api/movies/${movie_id}`);
         setMovie(response.data);
       } catch (error) {
         if (error.response && error.response.status === 404) {

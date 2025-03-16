@@ -3,7 +3,6 @@ import Navbar from "../components/Navbar";
 import MovieUpdateBorder from "../components/MovieUpdateBorder";
 import MovieList from "../components/MovieList";
 
-
 function HomePage({ user, handleLogout }) {
   useEffect(() => {
     window.history.scrollRestoration = "manual";

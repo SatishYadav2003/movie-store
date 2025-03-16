@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
 import MovieProvider from "./contextApi/MovieProvider";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Routes, Route } from "react-router-dom";
 import IndividualMovieLister from "./components/IndividualMovieLister";
 import TopMotion from "./components/TopMotion";
-
 
 import Login from "./components/Auth/Login";
 import { auth } from "./firebase/firebaseConfig.js";
@@ -28,6 +27,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      toast.success(`Goodbye, ${user.displayName}!`);
       setUser(null);
     } catch (error) {
       console.error("Logout Error:", error);
@@ -47,7 +47,10 @@ function App() {
               </MovieProvider>
             }
           />
-          <Route path="/movie-detail/:movie_id" element={<IndividualMovieLister />} />
+          <Route
+            path="/movie-detail/:movie_id"
+            element={<IndividualMovieLister />}
+          />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route
             path="/request-movie"
