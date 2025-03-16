@@ -68,6 +68,10 @@ const RequestMovie = ({ user, loading }) => {
     }
   }, [user, loading, navigate]);
 
+  useEffect(()=>{
+    window.scroll(0,0);
+  },[])
+
   return loading ? (
     <div className="flex flex-col items-center justify-center h-screen px-4">
       <ClipLoader color="#3498db" loading={loading} size={60} />
