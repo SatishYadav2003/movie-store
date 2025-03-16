@@ -47,7 +47,7 @@ function App() {
               </MovieProvider>
             }
           />
-          <Route path="/movie-detail" element={<IndividualMovieLister />} />
+          <Route path="movie-detail/:movie_id" element={<IndividualMovieLister />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route
             path="/request-movie"

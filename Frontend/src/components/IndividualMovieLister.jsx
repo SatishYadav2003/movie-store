@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import BoundryBorder from "./BoundryBorder";
+import { useParams } from "react-router-dom";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function IndividualMovieLister() {
-  const location = useLocation();
-  const movie = location.state;
-
+  const { movie_id } = useParams();
+  const [movie, setMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMovieLoading, setIsMovieLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleDownloadPage = async () => {
     try {
-      setIsLoading((prev_value) => !prev_value);
-
+      setIsLoading(true);
       const movie_link = movie.download_page_link;
 
       const shrink_link = await axios.get(
@@ -23,19 +24,67 @@ function IndividualMovieLister() {
 
       toast.success("We are redirecting to new page");
 
-      setIsLoading((prev_value) => !prev_value);
-
       setTimeout(() => {
         window.open(shrink_link.data.shortenedUrl, "_blank");
       }, 1000);
     } catch (error) {
-      setIsLoading((prev_value) => !prev_value);
+      toast.error("Failed to generate download link");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+
+    const BASE_URL = process.env.REACT_BACKEND_APP_BASE_URL || "https://movie-store-backend.onrender.com";
+
+    const fetchMovieDetails = async () => {
+      try {
+        setIsMovieLoading(true);
+        setError(null);
+
+        const response = await axios.get(
+          `${BASE_URL}/api/movies/${movie_id}`
+        );
+        setMovie(response.data);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          setError("Movie not found");
+        } else {
+          setError("Failed to fetch movie details");
+        }
+      } finally {
+        setIsMovieLoading(false);
+      }
+    };
+    fetchMovieDetails();
+  }, [movie_id]);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (isMovieLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <ClipLoader color="#3498db" loading={true} size={80} />
+        <p className="text-center text-gray-500 text-xl mt-4">
+          Just a sec, movie magic coming your way!
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-2xl text-red-500 font-semibold">{error}</p>
+        <p className="text-lg text-gray-500 mt-2">
+          Oops! We couldn't find this movie.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -101,7 +150,7 @@ function IndividualMovieLister() {
 
           <p className="text-blue-700 mb-4  font-sans font-semibold px-2">
             <span className="text-gray-700 font-bold">Director :</span>{" "}
-            {movie["Director:"].slice(0, -1).length == 0
+            {movie["Director:"].slice(0, -1).length === 0
               ? "Not Known"
               : movie["Director:"].slice(0, -1)}
           </p>
@@ -123,10 +172,10 @@ function IndividualMovieLister() {
             whileTap={{ scale: 0.85 }}
             transition={{ duration: 1 }}
             onClick={handleDownloadPage}
-            disabled={isLoading ? true : false}
+            disabled={isLoading}
             className="relative flex justify-center items-center gap-2 bg-sky-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-sky-600"
           >
-            {isLoading ? (
+            {isLoading && (
               <motion.div
                 className="absolute flex justify-center items-center"
                 animate={{ rotate: 360 }}
@@ -139,13 +188,9 @@ function IndividualMovieLister() {
                   borderRadius: "50%",
                 }}
               />
-            ) : null}
+            )}
 
-            <span
-              className={`${
-                isLoading ? "opacity-0" : "opacity-100"
-              } text-white font-semibold`}
-            >
+            <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Go to Download Section
             </span>
           </motion.button>

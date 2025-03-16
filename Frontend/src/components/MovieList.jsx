@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import BoundryBorder from "./BoundryBorder";
 import RequestMovieButton from "./RequestMovieButton";
 
+
 function MovieList({ user }) {
   const [, movies] = useMovieResult();
   const [loading, setLoading] = useState(true);
@@ -23,8 +24,15 @@ function MovieList({ user }) {
     currentPage * moviesPerPage
   );
 
-  const handleMovieDetail = (movieJson) => {
-    navigate("/movie-detail", { state: movieJson });
+ 
+
+  const handleMovieDetail = async (movie_id) => {
+    try {
+     
+      navigate(`/movie-detail/${movie_id}`);
+    } catch (error) {
+      toast.error("Failed to fetch movie details");
+    }
   };
 
   const handleInputChange = (e) => {
@@ -96,8 +104,8 @@ function MovieList({ user }) {
         </div>
       ) : (
         <>
-          {currentMovies.map((movie, index) => (
-            <div key={index} onClick={() => handleMovieDetail(movie)}>
+          {currentMovies.map((movie) => (
+            <div key={movie.movie_id} onClick={() => handleMovieDetail(movie.movie_id)}>
               <MovieTemplate
                 movie_name={movie["Movie Name"]}
                 movie_category={movie["Movie Category"]}
