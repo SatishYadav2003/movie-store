@@ -12,7 +12,7 @@ const RequestMovie = ({ user, loading }) => {
 
   const [formData, setFormData] = useState({
     senderName: "",
-    senderEmail: user?.email || "",
+    senderEmail: "",
     movieName: "",
     movieLanguage: "",
     reason: "",
@@ -92,6 +92,12 @@ const RequestMovie = ({ user, loading }) => {
   useEffect(() => {
     window.scroll(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (user?.email) {
+      setFormData((prev) => ({ ...prev, senderEmail: user.email }));
+    }
+  }, [user]);
 
   return loading ? (
     <div className="flex flex-col items-center justify-center h-screen px-4">
