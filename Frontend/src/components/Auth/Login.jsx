@@ -1,3 +1,88 @@
+// import { useState, useEffect } from "react";
+// import { signInWithGoogle } from "../../firebase/auth";
+// import { useNavigate } from "react-router-dom";
+// import { FcGoogle } from "react-icons/fc";
+// import { motion } from "framer-motion";
+// import { auth } from "../../firebase/firebaseConfig";
+// import { onAuthStateChanged } from "firebase/auth";
+// import toast from "react-hot-toast";
+// import { AiOutlineClose } from "react-icons/ai";
+
+// const Login = () => {
+//   const navigate = useNavigate();
+//   const [loading, setLoading] = useState(false);
+//   const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+//   useEffect(() => {
+//     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+//       if (currentUser) {
+//         setUserLoggedIn(true);
+//         navigate("/");
+//         const username = currentUser.displayName;
+//         toast.success(`Welcome, ${username} to Movie4u`, {
+//           style: {
+//             textAlign: "center",
+//           },
+//         });
+//       }
+//     });
+
+//     return () => unsubscribe();
+//   }, [navigate]);
+
+//   const handleLogin = async () => {
+//     setLoading(true);
+//     await signInWithGoogle();
+//     setLoading(false);
+//   };
+
+//   const handleClickEvent = () => {
+//     navigate("/");
+//   };
+
+//   return (
+//     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4 relative">
+//       <motion.div
+//         initial={{ opacity: 0, y: -20 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         className="bg-white p-6 py-12 sm:py-20 rounded-2xl shadow-lg w-full max-w-xs sm:max-w-sm relative"
+//       >
+//         <button
+//           className="absolute top-0 right-0 bg-white p-0.5 sm:p-1 rounded-2xl hover:bg-red-500 duration-300 hover:scale-105"
+//           onClick={handleClickEvent}
+//         >
+//           <AiOutlineClose size={18} className="text-black hover:text-white" />
+//         </button>
+
+//         <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">
+//           Welcome to{" "}
+//           <span className="text-blue-600 whitespace-nowrap">Movie4u</span> 🎬
+//         </h2>
+
+//         <motion.button
+//           onClick={handleLogin}
+//           disabled={loading || userLoggedIn}
+//           whileHover={{ scale: 1.02 }}
+//           whileTap={{ scale: 0.98 }}
+//           className="flex items-center justify-center gap-2 w-[95%] sm:w-[90%] mx-auto  py-2 px-2 sm:py-2.5 text-sm sm:text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-70 transition-colors duration-200"
+//         >
+//           <span className="p-1.5 border-2 border-white rounded-full bg-white ">
+//             <FcGoogle size={20} className="shrink-0" />
+//           </span>
+//           {loading ? "Signing in..." : "Sign in with Google"}
+//         </motion.button>
+
+//         <p className="mt-4 sm:mt-5 text-gray-600 text-xs sm:text-sm text-center leading-relaxed">
+//           Sign in to explore & request your favorite movies! 🍿
+//         </p>
+//       </motion.div>
+//     </div>
+//   );
+// };
+
+// export default Login;
+
+
 import { useState, useEffect } from "react";
 import { signInWithGoogle } from "../../firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -12,29 +97,43 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const [loginAttempted, setLoginAttempted] = useState(false);
 
+  // Track login attempt in session storage
+  const handleLogin = async () => {
+    sessionStorage.setItem("login_attempted", "true"); // Mark login attempt
+    setLoginAttempted(true);
+    setLoading(true);
+    await signInWithGoogle();
+    setLoading(false);
+  };
+
+  // Listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUserLoggedIn(true);
         navigate("/");
-        const username = currentUser.displayName;
-        toast.success(`Welcome, ${username} to Movie4u`, {
-          style: {
-            textAlign: "center",
-          },
+        sessionStorage.removeItem("login_attempted");
+        toast.success(`Welcome, ${currentUser.displayName} to Movie4u`, {
+          style: { textAlign: "center" },
         });
+      } else if (sessionStorage.getItem("login_attempted")) {
+        // If login was attempted but user is still not authenticated, check RAM
+        if ("deviceMemory" in navigator && navigator.deviceMemory < 1) {
+          toast.error(
+            "⚠️ Low RAM detected! Login failed. Close background apps and try again.",
+            { duration: 5000 }
+          );
+        } else {
+          toast.error("Login failed! Please try again.");
+        }
+        sessionStorage.removeItem("login_attempted");
       }
     });
 
     return () => unsubscribe();
   }, [navigate]);
-
-  const handleLogin = async () => {
-    setLoading(true);
-    await signInWithGoogle();
-    setLoading(false);
-  };
 
   const handleClickEvent = () => {
     navigate("/");
@@ -64,7 +163,7 @@ const Login = () => {
           disabled={loading || userLoggedIn}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="flex items-center justify-center gap-2 w-[95%] sm:w-[90%] mx-auto  py-2 px-2 sm:py-2.5 text-sm sm:text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-70 transition-colors duration-200"
+          className="flex items-center justify-center gap-2 w-[95%] sm:w-[90%] mx-auto py-2 px-2 sm:py-2.5 text-sm sm:text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-70 transition-colors duration-200"
         >
           <span className="p-1.5 border-2 border-white rounded-full bg-white ">
             <FcGoogle size={20} className="shrink-0" />

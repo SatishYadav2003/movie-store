@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import ClipLoader from "react-spinners/ClipLoader";
 import axios from "axios";
 
-
 const RequestMovie = ({ user, loading }) => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -22,8 +21,10 @@ const RequestMovie = ({ user, loading }) => {
   const validate = () => {
     const errors = {};
     if (!formData.senderName.trim()) errors.senderName = "Name is required.";
-    if (!formData.movieName.trim()) errors.movieName = "Movie name is required.";
-    if (!formData.movieLanguage.trim()) errors.movieLanguage = "Movie language is required.";
+    if (!formData.movieName.trim())
+      errors.movieName = "Movie name is required.";
+    if (!formData.movieLanguage.trim())
+      errors.movieLanguage = "Movie language is required.";
     return errors;
   };
 
@@ -45,7 +46,7 @@ const RequestMovie = ({ user, loading }) => {
 
     try {
       const BASE_URL =
-      import.meta.env.REACT_APP_BACKEND_BASE_URL ||
+        import.meta.env.REACT_APP_BACKEND_BASE_URL ||
         "https://movie-store-backend.onrender.com";
 
       const response = await axios.post(
@@ -68,11 +69,15 @@ const RequestMovie = ({ user, loading }) => {
           reason: "",
         });
       } else {
-        toast.error(response.data.error || "Failed to send request. Try again later.");
+        toast.error(
+          response.data.error || "Failed to send request. Try again later."
+        );
       }
     } catch (error) {
       console.error("Error submitting request:", error);
-      toast.error(error.response?.data?.error || "Network error. Please try again.");
+      toast.error(
+        error.response?.data?.error || "Network error. Please try again."
+      );
     } finally {
       setIsSubmitting(false); // Stop loading after request is complete
     }
@@ -145,7 +150,7 @@ const RequestMovie = ({ user, loading }) => {
             rows="3"
           />
         </div>
-        
+
         {/* Submit Button with Loader */}
         <motion.button
           whileHover={!isSubmitting ? { scale: 1.05 } : {}}
@@ -170,6 +175,7 @@ const RequestMovie = ({ user, loading }) => {
 
         {/* Go Back Button */}
         <button
+          type="button"
           onClick={() => navigate("/")}
           disabled={isSubmitting}
           className={`mt-6 w-full text-center py-3 font-medium border rounded-md transition-all ${
