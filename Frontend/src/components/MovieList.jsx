@@ -7,32 +7,31 @@ import { toast } from "react-hot-toast";
 import BoundryBorder from "./BoundryBorder";
 import RequestMovieButton from "./RequestMovieButton";
 
-
 function MovieList({ user }) {
   const [, movies] = useMovieResult();
   const [loading, setLoading] = useState(true);
+  const [moviesLoading, setMoviesLoading] = useState(true);
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [inputPage, setInputPage] = useState("");
   const moviesPerPage = 30;
 
-  const totalPages = Math.ceil(movies.length / moviesPerPage);
+  useEffect(() => {
+    // Simulate movie fetching delay
+    if (movies.length > 0) {
+      setMoviesLoading(false);
+    }
+  }, [movies]);
 
+  const totalPages = Math.ceil(movies.length / moviesPerPage);
   const currentMovies = movies.slice(
     (currentPage - 1) * moviesPerPage,
     currentPage * moviesPerPage
   );
 
- 
-
-  const handleMovieDetail = async (movie_id) => {
-    try {
-     
-      navigate(`/movie-detail/${movie_id}`);
-    } catch (error) {
-      toast.error("Failed to fetch movie details");
-    }
+  const handleMovieDetail = (movie_id) => {
+    navigate(`/movie-detail/${movie_id}`);
   };
 
   const handleInputChange = (e) => {
@@ -47,30 +46,26 @@ function MovieList({ user }) {
   };
 
   useEffect(() => {
+    if (moviesLoading) return;
+
     const preloadImages = async () => {
       setLoading(true);
-
       const imagePromises = currentMovies.map(
         (movie) =>
-          new Promise((resolve, reject) => {
+          new Promise((resolve) => {
             const img = new Image();
             img.src = movie["movie_img_url"];
             img.onload = resolve;
-            img.onerror = reject;
+            img.onerror = resolve; // Resolve on error to avoid blocking
           })
       );
 
-      try {
-        await Promise.all(imagePromises);
-      } catch (error) {
-        console.error("Image failed to load", error);
-      } finally {
-        setLoading(false);
-      }
+      await Promise.all(imagePromises);
+      setLoading(false);
     };
 
     preloadImages();
-  }, [currentPage]);
+  }, [currentPage, moviesLoading]);
 
   const handlePageJump = () => {
     const pageNumber = parseInt(inputPage, 10);
@@ -88,24 +83,34 @@ function MovieList({ user }) {
 
   return (
     <div className="relative">
-      {loading ? (
+      {moviesLoading ? (
         <div className="flex flex-col items-center">
-          <ClipLoader color="#3498db" loading={loading} size={80} />
+          <ClipLoader color="#3498db" loading={true} size={80} />
           <p className="text-center text-gray-500 text-xl mt-4">
-            Just a sec, movie magic coming your way!
+            Fetching movies, please wait...
           </p>
         </div>
       ) : movies.length === 0 ? (
         <div className="text-center text-red-500 font-semibold text-xl flex justify-center">
           <img
             src="https://cdni.iconscout.com/illustration/premium/thumb/no-search-found-2511608-2133696.png"
-            alt="No-Data-Found"
+            alt="No Data Found"
           />
+        </div>
+      ) : loading ? (
+        <div className="flex flex-col items-center">
+          <ClipLoader color="#3498db" loading={true} size={80} />
+          <p className="text-center text-gray-500 text-xl mt-4">
+            Loading images...
+          </p>
         </div>
       ) : (
         <>
           {currentMovies.map((movie) => (
-            <div key={movie.movie_id} onClick={() => handleMovieDetail(movie.movie_id)}>
+            <div
+              key={movie.movie_id}
+              onClick={() => handleMovieDetail(movie.movie_id)}
+            >
               <MovieTemplate
                 movie_name={movie["Movie Name"]}
                 movie_category={movie["Movie Category"]}

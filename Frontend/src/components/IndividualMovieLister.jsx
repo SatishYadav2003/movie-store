@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import BoundryBorder from "./BoundryBorder";
 import { useParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
+import { BASE_URL } from "../config.js";
 
 function IndividualMovieLister() {
   const { movie_id } = useParams();
@@ -35,10 +36,6 @@ function IndividualMovieLister() {
   };
 
   useEffect(() => {
-    const BASE_URL =
-    import.meta.env.REACT_APP_BACKEND_BASE_URL ||
-      "https://movie-store-backend.onrender.com";
-
     const fetchMovieDetails = async () => {
       try {
         setIsMovieLoading(true);
