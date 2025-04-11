@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import MovieUpdateBorder from "../components/MovieUpdateBorder";
 import MovieList from "../components/MovieList";
+import MovieSlider from "../components/MovieSlider";
 
 function HomePage({ user, handleLogout }) {
   useEffect(() => {
@@ -12,6 +13,7 @@ function HomePage({ user, handleLogout }) {
   return (
     <div>
       <Navbar user={user} handleLogout={handleLogout} />
+      <MovieSlider/>
       <MovieUpdateBorder />
       <MovieList user={user} />
     </div>

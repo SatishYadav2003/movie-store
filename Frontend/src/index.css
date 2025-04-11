@@ -11,3 +11,35 @@
     font-weight: 400;
     font-style: normal;
 }
+
+
+
+@keyframes glow {
+    0% {
+      box-shadow: 0 0 5px #ff66cc, 0 0 10px #ff66cc, 0 0 20px #ff66cc;
+    }
+    50% {
+      box-shadow: 0 0 10px #ff66cc, 0 0 20px #ff99dd, 0 0 30px #ff99dd;
+    }
+    100% {
+      box-shadow: 0 0 5px #ff66cc, 0 0 10px #ff66cc, 0 0 20px #ff66cc;
+    }
+  }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+  
+
+
+/* Hide spinner for number input (Chrome, Safari, Edge) */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide spinner for Firefox */
+.no-spinner {
+  -moz-appearance: textfield;
+}

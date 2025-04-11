@@ -6,8 +6,11 @@ export default {
   ],
   theme: {
     extend: {
-      screens:{
-        "extra-sm":"425px"
+      screens: {
+        "extra-sm": "425px"
+      },
+      boxShadow: {
+        'pink-hover': '0 0 10px 4px rgba(0, 150, 255,0.5)',
       }
     },
   },

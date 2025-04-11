@@ -35,7 +35,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-sky-100 overflow-hidden relative">
+    <div className="flex flex-col min-h-screen w-full  overflow-hidden relative bg-black">
       <TopMotion />
       <div className="flex-1">
         <Routes>

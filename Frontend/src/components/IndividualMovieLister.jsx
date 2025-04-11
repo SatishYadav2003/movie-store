@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
-import BoundryBorder from "./BoundryBorder";
 import { useParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BASE_URL } from "../config.js";
@@ -62,9 +61,9 @@ function IndividualMovieLister() {
 
   if (isMovieLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <ClipLoader color="#3498db" loading={true} size={80} />
-        <p className="text-center text-gray-500 text-xl mt-4">
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <ClipLoader color="#00bfff" loading={true} size={80} />
+        <p className="text-center text-gray-400 text-xl mt-4">
           Just a sec, movie magic coming your way!
         </p>
       </div>
@@ -73,8 +72,8 @@ function IndividualMovieLister() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-2xl text-red-500 font-semibold">{error}</p>
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <p className="text-2xl text-red-400 font-semibold">{error}</p>
         <p className="text-lg text-gray-500 mt-2">
           Oops! We couldn't find this movie.
         </p>
@@ -84,17 +83,17 @@ function IndividualMovieLister() {
 
   return (
     <>
-      <div className="relative w-fit mb-5 mt-2 select-none max-md:mb-5 mx-auto">
-        <div className="text-5xl  lg:text-6xl font-semibold ">
-          <span className="text-red-600">Movie</span>
-          4u
+      <div className="relative w-fit mb-5 mt-2 select-none max-md:mb-5 mx-auto ">
+        <div className="text-5xl lg:text-6xl font-semibold text-white ">
+          <span className="text-red-500">Movie</span>
+          <span className="text-sky-500">4u</span>
         </div>
-        <div className="text-pink-600 text-xs absolute right-0 ">
+        <div className="text-pink-500 text-xs absolute right-0">
           No.1 Movie Platform
         </div>
       </div>
 
-      <div className="relative flex flex-col justify-between select-none">
+      <div className="relative flex flex-col justify-between select-none bg-black min-h-screen text-white">
         <div className="w-full bg-sky-500 my-4 text-center py-2 text-white">
           <span className="sm:text-xl font-semibold">
             {movie["Movie Name"]}
@@ -105,7 +104,7 @@ function IndividualMovieLister() {
           <img
             src={movie.movie_img_url}
             alt={movie["Movie Name"]}
-            className="cursor-pointer w-full h-auto hover:scale-105 duration-300  rounded-lg shadow-lg shadow-sky-500"
+            className="cursor-pointer w-full h-auto hover:scale-105 duration-300 rounded-lg shadow-lg shadow-sky-500"
           />
         </div>
 
@@ -113,46 +112,46 @@ function IndividualMovieLister() {
           <span className="sm:text-xl font-semibold">Movie Description</span>
         </div>
 
-        <div className="w-full mb-4 sm:text-lg select-none bg-sky-200 shadow-md">
-          <p className=" mb-4 text-pink-500 font-sans font-semibold px-2">
-            <span className=" text-gray-700 font-bold">Name :</span>{" "}
+        <div className="w-full mb-4 sm:text-lg select-none bg-zinc-900 shadow-md rounded-md px-2 py-4">
+          <p className="mb-4 text-pink-400 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Name :</span>{" "}
             {movie["Movie Name"]}
           </p>
 
-          <p className=" mb-4 text-fuchsia-500 font-sans font-semibold px-2">
-            <span className=" text-gray-700 font-bold">Description :</span>{" "}
+          <p className="mb-4 text-fuchsia-400 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Description :</span>{" "}
             {movie["Movie Description"]}
           </p>
 
-          <p className="text-red-500 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Category :</span>{" "}
+          <p className="text-red-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Category :</span>{" "}
             {movie["Movie Category"]}
           </p>
 
-          <p className="text-pink-500 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Genre :</span>{" "}
+          <p className="text-pink-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Genre :</span>{" "}
             {movie.Genre}
           </p>
 
-          <p className="text-red-700 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Release Date :</span>{" "}
+          <p className="text-orange-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Release Date :</span>{" "}
             {movie["Release Date"]}
           </p>
 
-          <p className="text-green-500 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Starring :</span>{" "}
-            {movie.Staring}
+          <p className="text-green-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Starring :</span>{" "}
+            {movie.Staring?.trim().replace(/,\s*$/, "")}
           </p>
 
-          <p className="text-blue-700 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Director :</span>{" "}
+          <p className="text-blue-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Director :</span>{" "}
             {movie["Director:"].slice(0, -1).length === 0
               ? "Not Known"
               : movie["Director:"].slice(0, -1)}
           </p>
 
-          <p className="text-orange-500 mb-4  font-sans font-semibold px-2">
-            <span className="text-gray-700 font-bold">Rating :</span>{" "}
+          <p className="text-yellow-400 mb-4 font-sans font-semibold">
+            <span className="text-gray-300 font-bold">Rating :</span>{" "}
             {movie.Rating}
           </p>
         </div>
@@ -169,7 +168,7 @@ function IndividualMovieLister() {
             transition={{ duration: 1 }}
             onClick={handleDownloadPage}
             disabled={isLoading}
-            className="relative flex justify-center items-center gap-2 bg-sky-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-sky-600"
+            className="relative flex justify-center items-center gap-2 bg-sky-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-sky-700"
           >
             {isLoading && (
               <motion.div
@@ -192,7 +191,6 @@ function IndividualMovieLister() {
           </motion.button>
         </div>
       </div>
-      <BoundryBorder />
     </>
   );
 }
