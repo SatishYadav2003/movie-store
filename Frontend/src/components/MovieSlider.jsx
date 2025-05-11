@@ -164,8 +164,8 @@ function MovieSlider() {
             <div className="h-10 w-40 bg-gray-600 rounded" />
           </div>
         </div>
-        <div className="w-1/2 h-full flex items-center justify-center">
-          <div className="w-full h-[90%] bg-gray-700 rounded" />
+        <div className="w-1/2 h-full flex items-center justify-center px-6">
+          <div className="w-4/5 h-[90%] bg-gray-700 rounded object-contain" />
         </div>
       </div>
     </div>
