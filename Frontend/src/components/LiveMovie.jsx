@@ -124,18 +124,18 @@ function LiveMovie() {
     };
   }, []);
 
-  return (
-    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center">
+ return (
+    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center">
       {/* Title */}
-      <div className="text-center mb-4">
-        <h1 className="text-4xl font-extrabold text-white">
+      <div className="text-center mb-6 max-w-xl w-full px-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
           {isFetchingLinks
             ? "Please Wait..."
             : downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].resolution
             : "Loading Movie..."}
         </h1>
-        <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
+        <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm tracking-wide">
           {!isFetchingLinks && downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].url.match(/\d+p/)
               ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
@@ -145,32 +145,35 @@ function LiveMovie() {
       </div>
 
       {/* Error Message */}
-      {error && <div className="mb-4 text-red-500 font-semibold">{error}</div>}
+      {error && (
+        <div className="mb-6 text-red-500 font-semibold max-w-xl w-full px-4 text-center">
+          {error}
+        </div>
+      )}
 
       {/* Video Frame Container */}
-      <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
+      <div className="w-full max-w-5xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
         {(isLoading || isFetchingLinks) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
             <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
-            <div className="text-white font-medium">
+            <div className="text-white font-medium text-center px-4">
               {isFetchingLinks
                 ? "Fetching Different resolution links..."
                 : "Loading video..."}
             </div>
           </div>
         )}
-        <div data-vjs-player className="aspect-video">
+        <div data-vjs-player className="aspect-video max-w-full">
           <video
             ref={videoRef}
-            className="video-js vjs-default-skin rounded-lg"
+            className="video-js vjs-default-skin rounded-lg w-full h-auto"
           />
         </div>
       </div>
 
       {/* Quality Buttons */}
-      <div className="flex space-x-3 mt-4 flex-wrap justify-center max-w-4xl">
+      <div className="flex flex-wrap justify-center max-w-5xl mx-auto mt-6 gap-3 px-4">
         {downloadLinks.map((link, index) => {
-          // If resolution has something like "480p", "720p", show that, else show full text (to avoid "Quality 1/2" fallback)
           const resolutionMatch = link.url.match(/\d+p/);
           const label = resolutionMatch
             ? resolutionMatch[0]
@@ -181,14 +184,12 @@ function LiveMovie() {
               key={index}
               onClick={() => setCurrentQualityIndex(index)}
               disabled={isLoading || isFetchingLinks}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 min-w-[90px] justify-center ${
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
               } ${
-                isLoading || isFetchingLinks
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
+                isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               <BadgeCheck className="w-4 h-4" />
