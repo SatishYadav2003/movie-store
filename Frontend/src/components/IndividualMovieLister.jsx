@@ -360,35 +360,37 @@ function IndividualMovieLister() {
   };
 
   const handleOpenModal = async (mode) => {
-    setShowModal(true);
-    setLoadingInModal(true);
-    setIsWatchMode(mode === "watch");
+  setShowModal(true);
+  setLoadingInModal(true);
+  setIsWatchMode(mode === "watch");
 
-    try {
-      setIsLoading(true);
-      const movie_link = movie.download_page_link;
+  try {
+    setIsLoading(true);
+    const movie_link = movie.download_page_link;
 
-      const response = await axios.get(
-        `https://latest-link.onrender.com/get-download-links?url=${movie_link}`
-      );
+    const response = await axios.get(
+      `https://latest-link.onrender.com/get-download-links?url=${movie_link}`
+    );
 
-      let links = response.data.downloadLinks || [];
+    let links = response.data.downloadLinks || [];
 
-      // If watching, filter out fake/invalid fastxmp4 links
-      if (mode === "watch") {
-        links = links.filter(
-          (link) => !/fastxmp4/i.test(link.url)
-        );
-      }
-
-      setDownloadLinks(links);
-    } catch (error) {
-      toast.error("Failed to fetch links");
-    } finally {
-      setIsLoading(false);
-      setLoadingInModal(false);
+    if (mode === "watch") {
+      // ⛔ Watch Mode: remove fastxmp4 links
+      links = links.filter(link => !/fastxmp4/i.test(link.url));
+    } else {
+      // ✅ Download Mode: keep only fastxmp4 link
+      const fastxmp4Link = links.find(link => /fastxmp4/i.test(link.url));
+      links = fastxmp4Link ? [fastxmp4Link] : [];
     }
-  };
+
+    setDownloadLinks(links);
+  } catch (error) {
+    toast.error("Failed to fetch links");
+  } finally {
+    setIsLoading(false);
+    setLoadingInModal(false);
+  }
+};
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
