@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { BadgeCheck } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { BASE_URL } from "../config.js";
 import axios from "axios";
 
 function LiveMovie() {
@@ -18,12 +19,10 @@ function LiveMovie() {
   const [error, setError] = useState(null);
   const [isFetchingLinks, setIsFetchingLinks] = useState(false);
 
-  const baseUrl = "https://movie-store-backend.onrender.com/api/stream";
-
   const getStreamUrl = (url, headers) => {
-    return `${baseUrl}?url=${btoa(url)}&referer=${encodeURIComponent(
-      headers.referer
-    )}&ua=${encodeURIComponent(
+    return `${BASE_URL}/api/stream?url=${btoa(
+      url
+    )}&referer=${encodeURIComponent(headers.referer)}&ua=${encodeURIComponent(
       headers["user-agent"]
     )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
@@ -111,11 +110,9 @@ function LiveMovie() {
         fullscreenToggle: true,
         playToggle: true,
       },
+      bigPlayButton: false,
       sources: [],
     });
-
-    // Hide the big play button overlay
-    player.bigPlayButton.hide();
 
     playerRef.current = player;
 
@@ -141,9 +138,9 @@ function LiveMovie() {
         <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
           {!isFetchingLinks && downloadLinks.length > 0 && !error
             ? // Prefer showing resolution like 480p, 720p; fallback to entire resolution string if no match
-              downloadLinks[currentQualityIndex].resolution.match(/\d+p/)
-              ? downloadLinks[currentQualityIndex].resolution.match(/\d+p/)[0]
-              : downloadLinks[currentQualityIndex].resolution
+              downloadLinks[currentQualityIndex].url.match(/\d+p/)
+              ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
+              : downloadLinks[currentQualityIndex].url
             : ""}
         </span>
       </div>
@@ -157,7 +154,9 @@ function LiveMovie() {
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
             <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
             <div className="text-white font-medium">
-              {isFetchingLinks ? "Fetching download links..." : "Loading video..."}
+              {isFetchingLinks
+                ? "Fetching download links..."
+                : "Loading video..."}
             </div>
           </div>
         )}
@@ -187,7 +186,11 @@ function LiveMovie() {
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
-              } ${isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${
+                isLoading || isFetchingLinks
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
               <BadgeCheck className="w-4 h-4" />
               <span>{label}</span>
