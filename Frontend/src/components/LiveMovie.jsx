@@ -16,22 +16,23 @@ function LiveMovie() {
   const [downloadLinks, setDownloadLinks] = useState([]);
   const [currentQualityIndex, setCurrentQualityIndex] = useState(0);
   const [error, setError] = useState(null);
+  const [isFetchingLinks, setIsFetchingLinks] = useState(false);
 
   const baseUrl = "https://movie-store-backend.onrender.com/api/stream";
 
   const getStreamUrl = (url, headers) => {
     return `${baseUrl}?url=${btoa(url)}&referer=${encodeURIComponent(
       headers.referer
-    )}&ua=${encodeURIComponent(headers["user-agent"])}&cookie=${encodeURIComponent(
-      headers.cookie
-    )}`;
+    )}&ua=${encodeURIComponent(
+      headers["user-agent"]
+    )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
 
   useEffect(() => {
     if (!movieLink) return;
 
     const fetchLinks = async () => {
-      setIsLoading(true);
+      setIsFetchingLinks(true);
       setError(null);
 
       try {
@@ -52,12 +53,14 @@ function LiveMovie() {
           setCurrentQualityIndex(0);
         } else {
           setError("No download links found in response.");
+          setDownloadLinks([]);
         }
       } catch (err) {
         console.error("Failed to fetch download links:", err);
         setError("Failed to fetch download links. Please try again later.");
+        setDownloadLinks([]);
       } finally {
-        setIsLoading(false);
+        setIsFetchingLinks(false);
       }
     };
 
@@ -106,9 +109,13 @@ function LiveMovie() {
       controlBar: {
         volumePanel: true,
         fullscreenToggle: true,
+        playToggle: true,
       },
       sources: [],
     });
+
+    // Hide the big play button overlay
+    player.bigPlayButton.hide();
 
     playerRef.current = player;
 
@@ -125,29 +132,33 @@ function LiveMovie() {
       {/* Title */}
       <div className="text-center mb-4">
         <h1 className="text-4xl font-extrabold text-white">
-          {downloadLinks.length > 0 && !error
+          {isFetchingLinks
+            ? "Fetching movie resolutions..."
+            : downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].resolution
             : "Loading Movie..."}
         </h1>
         <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
-          {downloadLinks.length > 0 && !error
-            ? downloadLinks[currentQualityIndex].resolution.match(/\d+p/)?.[0] || "Unknown"
+          {!isFetchingLinks && downloadLinks.length > 0 && !error
+            ? // Prefer showing resolution like 480p, 720p; fallback to entire resolution string if no match
+              downloadLinks[currentQualityIndex].resolution.match(/\d+p/)
+              ? downloadLinks[currentQualityIndex].resolution.match(/\d+p/)[0]
+              : downloadLinks[currentQualityIndex].resolution
             : ""}
         </span>
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="mb-4 text-red-500 font-semibold">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 text-red-500 font-semibold">{error}</div>}
 
       {/* Video Frame Container */}
       <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 z-10">
+        {(isLoading || isFetchingLinks) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
             <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
+            <div className="text-white font-medium">
+              {isFetchingLinks ? "Fetching download links..." : "Loading video..."}
+            </div>
           </div>
         )}
         <div data-vjs-player className="aspect-video">
@@ -161,19 +172,22 @@ function LiveMovie() {
       {/* Quality Buttons */}
       <div className="flex space-x-3 mt-4 flex-wrap justify-center max-w-4xl">
         {downloadLinks.map((link, index) => {
-          const resolutionMatch = link.resolution.match(/\d+p/);
-          const label = resolutionMatch ? resolutionMatch[0] : `Quality ${index + 1}`;
+          // If resolution has something like "480p", "720p", show that, else show full text (to avoid "Quality 1/2" fallback)
+          const resolutionMatch = link.url.match(/\d+p/);
+          const label = resolutionMatch
+            ? resolutionMatch[0]
+            : link.resolution || `Quality ${index + 1}`;
 
           return (
             <button
               key={index}
               onClick={() => setCurrentQualityIndex(index)}
-              disabled={isLoading}
+              disabled={isLoading || isFetchingLinks}
               className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
-              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <BadgeCheck className="w-4 h-4" />
               <span>{label}</span>
