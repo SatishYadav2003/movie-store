@@ -125,17 +125,17 @@ function LiveMovie() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 flex flex-col items-center justify-start">
-      {/* Title container with fixed min height to prevent layout shift */}
-      <div className="text-center mb-6 max-w-xl w-full px-4 min-h-[5.5rem] sm:min-h-[6rem]">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+    <div className="min-h-screen bg-black text-white py-6 px-3 flex flex-col items-center justify-start max-w-6xl mx-auto">
+      {/* Title container with compact design */}
+      <div className="text-center mb-4 w-full min-h-[3rem]">
+        <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">
           {isFetchingLinks
             ? "Please Wait..."
             : downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].resolution
             : "Loading Movie..."}
         </h1>
-        <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm tracking-wide">
+        <span className="mt-1 inline-block bg-white text-black px-2 py-0.5 rounded-full text-xs tracking-wide">
           {!isFetchingLinks && downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].url.match(/\d+p/)
               ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
@@ -146,17 +146,17 @@ function LiveMovie() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 text-red-500 font-semibold max-w-xl w-full px-4 text-center">
+        <div className="mb-3 text-red-500 font-medium w-full text-center text-sm">
           {error}
         </div>
       )}
 
       {/* Video Frame Container */}
-      <div className="w-full max-w-5xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
+      <div className="w-full max-w-4xl mx-auto relative rounded-md overflow-hidden border border-gray-800 shadow-lg bg-[#111]">
         {(isLoading || isFetchingLinks) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
-            <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
-            <div className="text-white font-medium text-center px-4 max-w-xs">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-3">
+            <div className="w-10 h-10 border-3 border-t-white border-transparent rounded-full animate-spin"></div>
+            <div className="text-white text-sm font-medium text-center px-4 max-w-xs">
               {isFetchingLinks
                 ? "Fetching Different resolution links..."
                 : "Loading video..."}
@@ -167,13 +167,13 @@ function LiveMovie() {
         <div data-vjs-player className="aspect-video max-w-full">
           <video
             ref={videoRef}
-            className="video-js vjs-default-skin rounded-lg w-full h-full"
+            className="video-js vjs-default-skin rounded-md w-full h-full"
           />
         </div>
       </div>
 
-      {/* Quality Buttons */}
-      <div className="flex flex-wrap justify-center max-w-5xl mx-auto mt-6 gap-3 px-4">
+      {/* Quality Buttons - Compact and Responsive */}
+      <div className="flex flex-wrap justify-center w-full max-w-4xl mx-auto mt-4 gap-2">
         {downloadLinks.map((link, index) => {
           const resolutionMatch = link.url.match(/\d+p/);
           const label = resolutionMatch
@@ -185,7 +185,7 @@ function LiveMovie() {
               key={index}
               onClick={() => setCurrentQualityIndex(index)}
               disabled={isLoading || isFetchingLinks}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 min-w-[90px] justify-center ${
+              className={`px-3 py-1.5 rounded text-xs font-medium transition flex items-center space-x-1 min-w-[70px] justify-center ${
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
@@ -195,7 +195,7 @@ function LiveMovie() {
                   : ""
               }`}
             >
-              <BadgeCheck className="w-4 h-4" />
+              <BadgeCheck className="w-3 h-3" />
               <span>{label}</span>
             </button>
           );
