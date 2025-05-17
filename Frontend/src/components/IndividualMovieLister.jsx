@@ -32,31 +32,34 @@ function IndividualMovieLister() {
   //   document.body.removeChild(a);
   // };
 
-
   const handleDownload = (url, headers) => {
-  // 1) Quick “is this a video file?” check by extension
-  const isVideoFile = /\.(mp4|mkv|avi|mov|flv|wmv)(\?.*)?$/i.test(url);
+    // 1) Quick “is this a video file?” check by extension
+    const isVideoFile = /\.(mp4|mkv|avi|mov|flv|wmv)(\?.*)?$/i.test(url);
 
-  if (isVideoFile) {
-    // existing download-via-your-API logic
-    const encodedHeaders = btoa(JSON.stringify(headers)); // base64 encode
-    const downloadUrl = `${BASE_URL}/api/download?url=${encodeURIComponent(
-      url
-    )}&headers=${encodeURIComponent(encodedHeaders)}`;
+    if (isVideoFile) {
+      // existing download-via-your-API logic
+      // const encodedHeaders = btoa(JSON.stringify(headers)); // base64 encode
+      // const downloadUrl = `${BASE_URL}/api/download?url=${encodeURIComponent(
+      //   url
+      // )}&headers=${encodeURIComponent(encodedHeaders)}`;
 
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = ""; // hint browser to download
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+      const encodedHeaders = encodeURIComponent(JSON.stringify(headers));
+      const downloadUrl =
+        `${BASE_URL}/api/download?` +
+        `url=${encodeURIComponent(url)}` +
+        `&headers=${encodedHeaders}`;
 
-  } else {
-    // 2) Not a direct file—just send the user to that page
-    window.location.href = url;
-  }
-};
-
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = ""; // hint browser to download
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      // 2) Not a direct file—just send the user to that page
+      window.location.href = url;
+    }
+  };
 
   const handleDownloadPage = async () => {
     setShowModal(true); // Show the modal immediately when the button is clicked
