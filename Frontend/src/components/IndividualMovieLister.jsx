@@ -359,7 +359,7 @@ function IndividualMovieLister() {
     }
   };
 
-  const handleOpenModal = async (mode) => {
+ const handleOpenModal = async (mode) => {
   setShowModal(true);
   setLoadingInModal(true);
   setIsWatchMode(mode === "watch");
@@ -375,13 +375,10 @@ function IndividualMovieLister() {
     let links = response.data.downloadLinks || [];
 
     if (mode === "watch") {
-      // ⛔ Watch Mode: remove fastxmp4 links
-      links = links.filter(link => !/fastxmp4/i.test(link.url));
-    } else {
-      // ✅ Download Mode: keep only fastxmp4 link
-      const fastxmp4Link = links.find(link => /fastxmp4/i.test(link.url));
-      links = fastxmp4Link ? [fastxmp4Link] : [];
+      // ✅ Only keep fastxmp4 links in Watch Mode
+      links = links.filter(link => /fastxmp4/i.test(link.url));
     }
+    // ✅ In Download mode, do NOT filter anything — keep all
 
     setDownloadLinks(links);
   } catch (error) {
@@ -391,6 +388,7 @@ function IndividualMovieLister() {
     setLoadingInModal(false);
   }
 };
+
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
