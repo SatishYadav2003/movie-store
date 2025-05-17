@@ -18,7 +18,9 @@ function LiveMovie() {
   const [currentQualityIndex, setCurrentQualityIndex] = useState(0);
   const [error, setError] = useState(null);
   const [isFetchingLinks, setIsFetchingLinks] = useState(false);
-  const [touchFeedback, setTouchFeedback] = useState("");
+  const [volume, setVolume] = useState(1);
+  const [brightness, setBrightness] = useState(1);
+  const brightnessOverlayRef = useRef(null);
 
   const getStreamUrl = (url, headers) => {
     return `${BASE_URL}/api/stream?url=${btoa(
@@ -27,70 +29,6 @@ function LiveMovie() {
       headers["user-agent"]
     )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
-
-  useEffect(() => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
-
-    let lastTap = 0;
-    let startX = 0;
-    let endX = 0;
-
-    const handleTouchStart = (e) => {
-      startX = e.touches[0].clientX;
-    };
-
-    const handleTouchMove = (e) => {
-      endX = e.touches[0].clientX;
-    };
-
-    const handleTouchEnd = () => {
-      const deltaX = endX - startX;
-      const width = videoEl.offsetWidth;
-
-      if (Math.abs(deltaX) > 60) {
-        if (deltaX > 0) {
-          playerRef.current.currentTime(playerRef.current.currentTime() - 5);
-          setTouchFeedback("⏪ Rewind 5s");
-        } else {
-          playerRef.current.currentTime(playerRef.current.currentTime() + 5);
-          setTouchFeedback("⏩ Forward 5s");
-        }
-        setTimeout(() => setTouchFeedback(""), 1000);
-      }
-    };
-
-    const handleDoubleTap = (e) => {
-      const currentTime = new Date().getTime();
-      const tapX = e.changedTouches[0].clientX;
-      const videoWidth = videoEl.offsetWidth;
-
-      if (currentTime - lastTap < 300) {
-        const isLeft = tapX < videoWidth / 2;
-        if (isLeft) {
-          playerRef.current.currentTime(playerRef.current.currentTime() - 10);
-          setTouchFeedback("⏪ Rewind 10s");
-        } else {
-          playerRef.current.currentTime(playerRef.current.currentTime() + 10);
-          setTouchFeedback("⏩ Forward 10s");
-        }
-        setTimeout(() => setTouchFeedback(""), 1000);
-      }
-      lastTap = currentTime;
-    };
-
-    videoEl.addEventListener("touchstart", handleTouchStart);
-    videoEl.addEventListener("touchmove", handleTouchMove);
-    videoEl.addEventListener("touchend", handleTouchEnd);
-    videoEl.addEventListener("touchend", handleDoubleTap);
-
-    return () => {
-      videoEl.removeEventListener("touchstart", handleTouchStart);
-      videoEl.removeEventListener("touchmove", handleTouchMove);
-      videoEl.removeEventListener("touchend", handleTouchEnd);
-      videoEl.removeEventListener("touchend", handleDoubleTap);
-    };
-  }, []);
 
   useEffect(() => {
     if (!movieLink) return;
@@ -180,7 +118,6 @@ function LiveMovie() {
     });
 
     playerRef.current = player;
-
     player.one("loadeddata", () => setIsLoading(false));
 
     return () => {
@@ -189,59 +126,115 @@ function LiveMovie() {
     };
   }, []);
 
+  // Gesture logic
+  const tapTimeout = useRef(null);
+  const gestureStart = useRef(null);
+  const holdInterval = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    const { clientX, clientY } = e.touches[0];
+    gestureStart.current = { x: clientX, y: clientY };
+
+    const half = window.innerWidth / 2;
+
+    // Hold-to-seek
+    holdInterval.current = setInterval(() => {
+      if (!playerRef.current) return;
+      if (clientX > half) {
+        playerRef.current.currentTime(playerRef.current.currentTime() + 1);
+      } else {
+        playerRef.current.currentTime(playerRef.current.currentTime() - 1);
+      }
+    }, 200);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!gestureStart.current || e.touches.length !== 1) return;
+
+    const deltaY = e.touches[0].clientY - gestureStart.current.y;
+    const screenWidth = window.innerWidth;
+    const side = gestureStart.current.x < screenWidth / 2 ? "left" : "right";
+
+    if (side === "right") {
+      // Volume control
+      const newVolume = Math.min(1, Math.max(0, volume - deltaY / 300));
+      playerRef.current.volume(newVolume);
+      setVolume(newVolume);
+    } else {
+      // Brightness simulation
+      const newBrightness = Math.min(1, Math.max(0.2, brightness - deltaY / 300));
+      setBrightness(newBrightness);
+      if (brightnessOverlayRef.current) {
+        brightnessOverlayRef.current.style.opacity = 1 - newBrightness;
+      }
+    }
+
+    gestureStart.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    clearInterval(holdInterval.current);
+    const touch = e.changedTouches[0];
+    const half = window.innerWidth / 2;
+
+    // Double-tap to seek
+    if (tapTimeout.current) {
+      clearTimeout(tapTimeout.current);
+      tapTimeout.current = null;
+      if (touch.clientX > half) {
+        playerRef.current.currentTime(playerRef.current.currentTime() + 10);
+      } else {
+        playerRef.current.currentTime(playerRef.current.currentTime() - 10);
+      }
+    } else {
+      tapTimeout.current = setTimeout(() => {
+        tapTimeout.current = null;
+      }, 250);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-6 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-black text-white p-4 md:p-6 flex flex-col items-center justify-center space-y-4">
       {/* Title */}
-      <div className="text-center mb-4">
-        <h1 className="text-2xl sm:text-4xl font-extrabold">
+      <div className="text-center">
+        <h1 className="text-2xl md:text-4xl font-bold">
           {isFetchingLinks
             ? "Please Wait..."
             : downloadLinks.length > 0 && !error
-            ? downloadLinks[currentQualityIndex].resolution
+            ? downloadLinks[currentQualityIndex].url.match(/\d+p/)?.[0]
             : "Loading Movie..."}
         </h1>
-        <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
-          {!isFetchingLinks && downloadLinks.length > 0 && !error
-            ? downloadLinks[currentQualityIndex].url.match(/\d+p/)
-              ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
-              : downloadLinks[currentQualityIndex].url
-            : "Unknown"}
-        </span>
       </div>
 
-      {error && <div className="mb-4 text-red-500 font-semibold">{error}</div>}
+      {/* Error */}
+      {error && (
+        <div className="text-red-500 font-semibold">{error}</div>
+      )}
 
-      {/* Video Frame Container */}
-      <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
+      {/* Video Container */}
+      <div
+        className="w-full max-w-4xl relative rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-[#111]"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {(isLoading || isFetchingLinks) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
-            <div className="w-10 h-10 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
-            <div className="text-white font-medium">
-              {isFetchingLinks
-                ? "Fetching Different resolution links..."
-                : "Loading video..."}
-            </div>
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black bg-opacity-70">
+            <div className="text-white animate-spin border-4 border-t-white border-gray-600 rounded-full h-12 w-12"></div>
           </div>
         )}
-
-        {touchFeedback && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
-            <div className="bg-black bg-opacity-70 text-white text-xl px-4 py-2 rounded-lg animate-pulse">
-              {touchFeedback}
-            </div>
-          </div>
-        )}
-
+        <div ref={brightnessOverlayRef} className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200" style={{ opacity: 0 }} />
         <div data-vjs-player className="aspect-video">
-          <video
-            ref={videoRef}
-            className="video-js vjs-default-skin rounded-lg"
-          />
+          <video ref={videoRef} className="video-js vjs-default-skin rounded-lg" />
         </div>
       </div>
 
-      {/* Quality Buttons */}
-      <div className="flex flex-wrap justify-center mt-4 gap-2 px-2 max-w-3xl">
+      {/* Quality Selector */}
+      <div className="flex flex-wrap justify-center gap-3">
         {downloadLinks.map((link, index) => {
           const resolutionMatch = link.url.match(/\d+p/);
           const label = resolutionMatch
@@ -253,15 +246,11 @@ function LiveMovie() {
               key={index}
               onClick={() => setCurrentQualityIndex(index)}
               disabled={isLoading || isFetchingLinks}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition ${
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
-              } ${
-                isLoading || isFetchingLinks
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
+              } ${isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <BadgeCheck className="w-4 h-4" />
               <span>{label}</span>
