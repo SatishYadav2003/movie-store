@@ -154,7 +154,7 @@ function LiveMovie() {
             <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
             <div className="text-white font-medium">
               {isFetchingLinks
-                ? "Fetching download links..."
+                ? "Fetching Different resolution links..."
                 : "Loading video..."}
             </div>
           </div>
