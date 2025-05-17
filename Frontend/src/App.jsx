@@ -61,7 +61,6 @@ function App() {
             path="/request-movie"
             element={<RequestMovie user={user} loading={loading} />}
           />
-
         </Routes>
       </div>
       <Toaster />

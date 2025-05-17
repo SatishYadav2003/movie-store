@@ -1,4 +1,3 @@
-// LiveMovie.jsx
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -19,9 +18,6 @@ function LiveMovie() {
   const [currentQualityIndex, setCurrentQualityIndex] = useState(0);
   const [error, setError] = useState(null);
   const [isFetchingLinks, setIsFetchingLinks] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [brightness, setBrightness] = useState(1);
-  const brightnessOverlayRef = useRef(null);
 
   const getStreamUrl = (url, headers) => {
     return `${BASE_URL}/api/stream?url=${btoa(
@@ -37,12 +33,14 @@ function LiveMovie() {
     const fetchLinks = async () => {
       setIsFetchingLinks(true);
       setError(null);
+
       try {
         const res = await axios.get(
           `https://latest-link.onrender.com/get-download-links?url=${encodeURIComponent(
             movieLink
           )}`
         );
+
         if (res.data && res.data.downloadLinks) {
           const playableLinks = res.data.downloadLinks.filter((link) =>
             link.url.includes("fastxmp4")
@@ -76,6 +74,7 @@ function LiveMovie() {
     try {
       const { url, headers } = downloadLinks[currentQualityIndex];
       const streamUrl = getStreamUrl(url, headers);
+
       const currentTime = playerRef.current.currentTime();
 
       playerRef.current.src({
@@ -116,6 +115,7 @@ function LiveMovie() {
     });
 
     playerRef.current = player;
+
     player.one("loadeddata", () => setIsLoading(false));
 
     return () => {
@@ -124,114 +124,53 @@ function LiveMovie() {
     };
   }, []);
 
-  // Gesture logic
-  const tapTimeout = useRef(null);
-  const gestureStart = useRef(null);
-  const holdInterval = useRef(null);
-
-  const handleTouchStart = (e) => {
-    if (e.touches.length !== 1) return;
-    const { clientX, clientY } = e.touches[0];
-    gestureStart.current = { x: clientX, y: clientY };
-
-    const half = window.innerWidth / 2;
-
-    holdInterval.current = setInterval(() => {
-      if (!playerRef.current) return;
-      if (clientX > half) {
-        playerRef.current.currentTime(playerRef.current.currentTime() + 1);
-      } else {
-        playerRef.current.currentTime(playerRef.current.currentTime() - 1);
-      }
-    }, 200);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!gestureStart.current || e.touches.length !== 1) return;
-
-    const { clientX, clientY } = e.touches[0];
-    const deltaY = gestureStart.current.y - clientY;
-    const side = gestureStart.current.x < window.innerWidth / 2 ? "left" : "right";
-    const sensitivity = 300;
-
-    if (side === "right") {
-      let newVolume = volume + deltaY / sensitivity;
-      newVolume = Math.max(0, Math.min(1, newVolume));
-      playerRef.current.volume(newVolume);
-      setVolume(newVolume);
-    } else {
-      let newBrightness = brightness + deltaY / sensitivity;
-      newBrightness = Math.max(0.2, Math.min(1, newBrightness));
-      setBrightness(newBrightness);
-      if (brightnessOverlayRef.current) {
-        brightnessOverlayRef.current.style.opacity = 1 - newBrightness;
-      }
-    }
-
-    // Update so next move is smooth
-    gestureStart.current.y = clientY;
-  };
-
-  const handleTouchEnd = (e) => {
-    clearInterval(holdInterval.current);
-    const touch = e.changedTouches[0];
-    const half = window.innerWidth / 2;
-
-    // Double Tap to seek
-    if (tapTimeout.current) {
-      clearTimeout(tapTimeout.current);
-      tapTimeout.current = null;
-      if (touch.clientX > half) {
-        playerRef.current.currentTime(playerRef.current.currentTime() + 10);
-      } else {
-        playerRef.current.currentTime(playerRef.current.currentTime() - 10);
-      }
-    } else {
-      tapTimeout.current = setTimeout(() => {
-        tapTimeout.current = null;
-      }, 250);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-6 flex flex-col items-center justify-center space-y-4">
-      <div className="text-center">
-        <h1 className="text-2xl md:text-4xl font-bold">
+    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center">
+      {/* Title */}
+      <div className="text-center mb-4">
+        <h1 className="text-4xl font-extrabold text-white">
           {isFetchingLinks
             ? "Please Wait..."
             : downloadLinks.length > 0 && !error
-            ? downloadLinks[currentQualityIndex].url.match(/\d+p/)?.[0]
+            ? downloadLinks[currentQualityIndex].resolution
             : "Loading Movie..."}
         </h1>
+        <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
+          {!isFetchingLinks && downloadLinks.length > 0 && !error
+            ? downloadLinks[currentQualityIndex].url.match(/\d+p/)
+              ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
+              : downloadLinks[currentQualityIndex].url
+            : "Unknown"}
+        </span>
       </div>
 
-      {error && (
-        <div className="text-red-500 font-semibold">{error}</div>
-      )}
+      {/* Error Message */}
+      {error && <div className="mb-4 text-red-500 font-semibold">{error}</div>}
 
-      <div
-        className="w-full max-w-4xl relative rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-[#111]"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+      {/* Video Frame Container */}
+      <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
         {(isLoading || isFetchingLinks) && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black bg-opacity-70">
-            <div className="text-white animate-spin border-4 border-t-white border-gray-600 rounded-full h-12 w-12"></div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
+            <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
+            <div className="text-white font-medium">
+              {isFetchingLinks
+                ? "Fetching Different resolution links..."
+                : "Loading video..."}
+            </div>
           </div>
         )}
-        <div
-          ref={brightnessOverlayRef}
-          className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200"
-          style={{ opacity: 0 }}
-        />
         <div data-vjs-player className="aspect-video">
-          <video ref={videoRef} className="video-js vjs-default-skin rounded-lg" />
+          <video
+            ref={videoRef}
+            className="video-js vjs-default-skin rounded-lg"
+          />
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-3">
+      {/* Quality Buttons */}
+      <div className="flex space-x-3 mt-4 flex-wrap justify-center max-w-4xl">
         {downloadLinks.map((link, index) => {
+          // If resolution has something like "480p", "720p", show that, else show full text (to avoid "Quality 1/2" fallback)
           const resolutionMatch = link.url.match(/\d+p/);
           const label = resolutionMatch
             ? resolutionMatch[0]
@@ -242,11 +181,15 @@ function LiveMovie() {
               key={index}
               onClick={() => setCurrentQualityIndex(index)}
               disabled={isLoading || isFetchingLinks}
-              className={`px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
                 currentQualityIndex === index
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
-              } ${isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${
+                isLoading || isFetchingLinks
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
               <BadgeCheck className="w-4 h-4" />
               <span>{label}</span>
