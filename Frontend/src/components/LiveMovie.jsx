@@ -130,7 +130,7 @@ function LiveMovie() {
       <div className="text-center mb-4">
         <h1 className="text-4xl font-extrabold text-white">
           {isFetchingLinks
-            ? "Fetching movie resolutions..."
+            ? "Please Wait..."
             : downloadLinks.length > 0 && !error
             ? downloadLinks[currentQualityIndex].resolution
             : "Loading Movie..."}
