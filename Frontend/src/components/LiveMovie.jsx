@@ -2,61 +2,96 @@ import React, { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { BadgeCheck } from "lucide-react";
-
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 function LiveMovie() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const downloadPageLink = params.get("movieLink");
-
-  console.log(downloadPageLink);
+  const movieLink = params.get("movieLink");
 
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentQuality, setCurrentQuality] = useState("480p");
-
-  // Quality sources
-  const qualities = {
-    "720p":
-      "https://dl5.fastxmp4.com/download/47017/Final-Destination:-Bloodlines-(2025)-Hindi-Dubbed-Movie--720p-[Orgmovies].mp4?st=ZWpTulLDBZpIbfmRhRpKyA&e=1747559853",
-    "480p":
-      "https://dl2.fastxmp4.com/download/47017/Final-Destination:-Bloodlines-(2025)-Hindi-Dubbed-Movie--480p-[Orgmovies].mp4?st=ZWpTulLDBZpIbfmRhRpKyA&e=1747559853",
-  };
+  const [downloadLinks, setDownloadLinks] = useState([]);
+  const [currentQualityIndex, setCurrentQualityIndex] = useState(0);
+  const [error, setError] = useState(null);
 
   const baseUrl = "https://movie-store-backend.onrender.com/api/stream";
-  const referer =
-    "https://www.mp4moviez.law/final-destination:-bloodlines-(2025)-hindi-dubbed-movie-hd-47017.html";
-  const ua =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-  const cookie =
-    "_ga=GA1.1.303971781.1747473456; _ga_2MNVGSXSRS=GS2.1.s1747473456$o1$g0$t1747473456$j0$l0$h1624421269";
 
-  const getStreamUrl = (quality) => {
-    const url = qualities[quality];
+  const getStreamUrl = (url, headers) => {
     return `${baseUrl}?url=${btoa(url)}&referer=${encodeURIComponent(
-      referer
-    )}&ua=${encodeURIComponent(ua)}&cookie=${encodeURIComponent(cookie)}`;
+      headers.referer
+    )}&ua=${encodeURIComponent(headers["user-agent"])}&cookie=${encodeURIComponent(
+      headers.cookie
+    )}`;
   };
 
-  const changeQuality = (quality) => {
-    if (!playerRef.current) return;
+  useEffect(() => {
+    if (!movieLink) return;
+
+    const fetchLinks = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const res = await axios.get(
+          `https://latest-link.onrender.com/get-download-links?url=${encodeURIComponent(
+            movieLink
+          )}`
+        );
+
+        if (res.data && res.data.downloadLinks) {
+          const playableLinks = res.data.downloadLinks.filter((link) =>
+            link.url.includes("fastxmp4")
+          );
+          if (playableLinks.length === 0) {
+            setError("No playable download links found.");
+          }
+          setDownloadLinks(playableLinks);
+          setCurrentQualityIndex(0);
+        } else {
+          setError("No download links found in response.");
+        }
+      } catch (err) {
+        console.error("Failed to fetch download links:", err);
+        setError("Failed to fetch download links. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLinks();
+  }, [movieLink]);
+
+  useEffect(() => {
+    if (!playerRef.current || downloadLinks.length === 0) return;
+
     setIsLoading(true);
-    const currentTime = playerRef.current.currentTime();
-    setCurrentQuality(quality);
 
-    playerRef.current.src({
-      src: getStreamUrl(quality),
-      type: "video/mp4",
-    });
-    playerRef.current.load();
-    playerRef.current.one("loadeddata", () => {
-      playerRef.current.currentTime(currentTime);
-      playerRef.current.play();
+    try {
+      const { url, headers } = downloadLinks[currentQualityIndex];
+      const streamUrl = getStreamUrl(url, headers);
+
+      const currentTime = playerRef.current.currentTime();
+
+      playerRef.current.src({
+        src: streamUrl,
+        type: "video/mp4",
+      });
+      playerRef.current.load();
+
+      playerRef.current.one("loadeddata", () => {
+        playerRef.current.currentTime(currentTime);
+        playerRef.current.play();
+        setIsLoading(false);
+      });
+    } catch (err) {
+      console.error("Error setting video source:", err);
+      setError("Error loading video. Please try another quality.");
       setIsLoading(false);
-    });
-  };
+    }
+  }, [currentQualityIndex, downloadLinks]);
 
   useEffect(() => {
     if (playerRef.current) return;
@@ -72,25 +107,12 @@ function LiveMovie() {
         volumePanel: true,
         fullscreenToggle: true,
       },
-      sources: [
-        {
-          src: getStreamUrl(currentQuality),
-          type: "video/mp4",
-        },
-      ],
+      sources: [],
     });
 
-    player.ready(() => {
-      const bigPlayButton = playerRef.current
-        ?.el()
-        ?.querySelector(".vjs-big-play-button");
-      if (bigPlayButton) {
-        bigPlayButton.style.display = "none";
-      }
-    });
+    playerRef.current = player;
 
     player.one("loadeddata", () => setIsLoading(false));
-    playerRef.current = player;
 
     return () => {
       player.dispose();
@@ -103,12 +125,23 @@ function LiveMovie() {
       {/* Title */}
       <div className="text-center mb-4">
         <h1 className="text-4xl font-extrabold text-white">
-          Final Destination: Bloodlines
+          {downloadLinks.length > 0 && !error
+            ? downloadLinks[currentQualityIndex].resolution
+            : "Loading Movie..."}
         </h1>
         <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
-          {currentQuality}
+          {downloadLinks.length > 0 && !error
+            ? downloadLinks[currentQualityIndex].resolution.match(/\d+p/)?.[0] || "Unknown"
+            : ""}
         </span>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 text-red-500 font-semibold">
+          {error}
+        </div>
+      )}
 
       {/* Video Frame Container */}
       <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
@@ -126,21 +159,27 @@ function LiveMovie() {
       </div>
 
       {/* Quality Buttons */}
-      <div className="flex space-x-3 mt-4">
-        {Object.keys(qualities).map((q) => (
-          <button
-            key={q}
-            onClick={() => changeQuality(q)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
-              currentQuality === q
-                ? "bg-white text-black"
-                : "bg-gray-800 hover:bg-gray-700 text-white"
-            }`}
-          >
-            <BadgeCheck className="w-4 h-4" />
-            <span>{q}</span>
-          </button>
-        ))}
+      <div className="flex space-x-3 mt-4 flex-wrap justify-center max-w-4xl">
+        {downloadLinks.map((link, index) => {
+          const resolutionMatch = link.resolution.match(/\d+p/);
+          const label = resolutionMatch ? resolutionMatch[0] : `Quality ${index + 1}`;
+
+          return (
+            <button
+              key={index}
+              onClick={() => setCurrentQualityIndex(index)}
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center space-x-2 ${
+                currentQualityIndex === index
+                  ? "bg-white text-black"
+                  : "bg-gray-800 hover:bg-gray-700 text-white"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <BadgeCheck className="w-4 h-4" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
