@@ -106,6 +106,11 @@ function LiveMovie() {
       responsive: true,
       playbackRates: [0.5, 1, 1.25, 1.5, 2],
       controlBar: {
+        progressControl: {
+          seekBar: {
+            userSeek: true,
+          },
+        },
         volumePanel: true,
         fullscreenToggle: true,
         playToggle: true,
