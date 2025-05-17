@@ -124,7 +124,7 @@ function LiveMovie() {
     };
   }, []);
 
- return (
+  return (
     <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center">
       {/* Title */}
       <div className="text-center mb-6 max-w-xl w-full px-4">
@@ -189,7 +189,9 @@ function LiveMovie() {
                   ? "bg-white text-black"
                   : "bg-gray-800 hover:bg-gray-700 text-white"
               } ${
-                isLoading || isFetchingLinks ? "opacity-50 cursor-not-allowed" : ""
+                isLoading || isFetchingLinks
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
             >
               <BadgeCheck className="w-4 h-4" />
