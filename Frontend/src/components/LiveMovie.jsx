@@ -125,9 +125,9 @@ function LiveMovie() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center">
-      {/* Title */}
-      <div className="text-center mb-6 max-w-xl w-full px-4">
+    <div className="min-h-screen bg-black text-white p-4 flex flex-col items-center justify-start">
+      {/* Title container with fixed min height to prevent layout shift */}
+      <div className="text-center mb-6 max-w-xl w-full px-4 min-h-[5.5rem] sm:min-h-[6rem]">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
           {isFetchingLinks
             ? "Please Wait..."
@@ -156,17 +156,18 @@ function LiveMovie() {
         {(isLoading || isFetchingLinks) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
             <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
-            <div className="text-white font-medium text-center px-4">
+            <div className="text-white font-medium text-center px-4 max-w-xs">
               {isFetchingLinks
                 ? "Fetching Different resolution links..."
                 : "Loading video..."}
             </div>
           </div>
         )}
+        {/* Aspect ratio wrapper ensures consistent height based on width */}
         <div data-vjs-player className="aspect-video max-w-full">
           <video
             ref={videoRef}
-            className="video-js vjs-default-skin rounded-lg w-full h-auto"
+            className="video-js vjs-default-skin rounded-lg w-full h-full"
           />
         </div>
       </div>
