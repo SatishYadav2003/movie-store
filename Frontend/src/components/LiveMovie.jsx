@@ -1,3 +1,4 @@
+// LiveMovie.jsx
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -36,14 +37,12 @@ function LiveMovie() {
     const fetchLinks = async () => {
       setIsFetchingLinks(true);
       setError(null);
-
       try {
         const res = await axios.get(
           `https://latest-link.onrender.com/get-download-links?url=${encodeURIComponent(
             movieLink
           )}`
         );
-
         if (res.data && res.data.downloadLinks) {
           const playableLinks = res.data.downloadLinks.filter((link) =>
             link.url.includes("fastxmp4")
@@ -77,7 +76,6 @@ function LiveMovie() {
     try {
       const { url, headers } = downloadLinks[currentQualityIndex];
       const streamUrl = getStreamUrl(url, headers);
-
       const currentTime = playerRef.current.currentTime();
 
       playerRef.current.src({
@@ -138,7 +136,6 @@ function LiveMovie() {
 
     const half = window.innerWidth / 2;
 
-    // Hold-to-seek
     holdInterval.current = setInterval(() => {
       if (!playerRef.current) return;
       if (clientX > half) {
@@ -152,28 +149,27 @@ function LiveMovie() {
   const handleTouchMove = (e) => {
     if (!gestureStart.current || e.touches.length !== 1) return;
 
-    const deltaY = e.touches[0].clientY - gestureStart.current.y;
-    const screenWidth = window.innerWidth;
-    const side = gestureStart.current.x < screenWidth / 2 ? "left" : "right";
+    const { clientX, clientY } = e.touches[0];
+    const deltaY = gestureStart.current.y - clientY;
+    const side = gestureStart.current.x < window.innerWidth / 2 ? "left" : "right";
+    const sensitivity = 300;
 
     if (side === "right") {
-      // Volume control
-      const newVolume = Math.min(1, Math.max(0, volume - deltaY / 300));
+      let newVolume = volume + deltaY / sensitivity;
+      newVolume = Math.max(0, Math.min(1, newVolume));
       playerRef.current.volume(newVolume);
       setVolume(newVolume);
     } else {
-      // Brightness simulation
-      const newBrightness = Math.min(1, Math.max(0.2, brightness - deltaY / 300));
+      let newBrightness = brightness + deltaY / sensitivity;
+      newBrightness = Math.max(0.2, Math.min(1, newBrightness));
       setBrightness(newBrightness);
       if (brightnessOverlayRef.current) {
         brightnessOverlayRef.current.style.opacity = 1 - newBrightness;
       }
     }
 
-    gestureStart.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
+    // Update so next move is smooth
+    gestureStart.current.y = clientY;
   };
 
   const handleTouchEnd = (e) => {
@@ -181,7 +177,7 @@ function LiveMovie() {
     const touch = e.changedTouches[0];
     const half = window.innerWidth / 2;
 
-    // Double-tap to seek
+    // Double Tap to seek
     if (tapTimeout.current) {
       clearTimeout(tapTimeout.current);
       tapTimeout.current = null;
@@ -199,7 +195,6 @@ function LiveMovie() {
 
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-6 flex flex-col items-center justify-center space-y-4">
-      {/* Title */}
       <div className="text-center">
         <h1 className="text-2xl md:text-4xl font-bold">
           {isFetchingLinks
@@ -210,12 +205,10 @@ function LiveMovie() {
         </h1>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="text-red-500 font-semibold">{error}</div>
       )}
 
-      {/* Video Container */}
       <div
         className="w-full max-w-4xl relative rounded-lg overflow-hidden border border-gray-700 shadow-lg bg-[#111]"
         onTouchStart={handleTouchStart}
@@ -227,13 +220,16 @@ function LiveMovie() {
             <div className="text-white animate-spin border-4 border-t-white border-gray-600 rounded-full h-12 w-12"></div>
           </div>
         )}
-        <div ref={brightnessOverlayRef} className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200" style={{ opacity: 0 }} />
+        <div
+          ref={brightnessOverlayRef}
+          className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200"
+          style={{ opacity: 0 }}
+        />
         <div data-vjs-player className="aspect-video">
           <video ref={videoRef} className="video-js vjs-default-skin rounded-lg" />
         </div>
       </div>
 
-      {/* Quality Selector */}
       <div className="flex flex-wrap justify-center gap-3">
         {downloadLinks.map((link, index) => {
           const resolutionMatch = link.url.match(/\d+p/);
