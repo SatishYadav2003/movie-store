@@ -137,11 +137,10 @@ function LiveMovie() {
         </h1>
         <span className="mt-2 inline-block bg-white text-black px-3 py-1 rounded-full text-sm">
           {!isFetchingLinks && downloadLinks.length > 0 && !error
-            ? // Prefer showing resolution like 480p, 720p; fallback to entire resolution string if no match
-              downloadLinks[currentQualityIndex].url.match(/\d+p/)
+            ? downloadLinks[currentQualityIndex].url.match(/\d+p/)
               ? downloadLinks[currentQualityIndex].url.match(/\d+p/)[0]
               : downloadLinks[currentQualityIndex].url
-            : ""}
+            : "Unknown"}
         </span>
       </div>
 
