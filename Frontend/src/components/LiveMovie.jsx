@@ -18,6 +18,7 @@ function LiveMovie() {
   const [currentQualityIndex, setCurrentQualityIndex] = useState(0);
   const [error, setError] = useState(null);
   const [isFetchingLinks, setIsFetchingLinks] = useState(false);
+  const [touchFeedback, setTouchFeedback] = useState("");
 
   const getStreamUrl = (url, headers) => {
     return `${BASE_URL}/api/stream?url=${btoa(
@@ -26,6 +27,70 @@ function LiveMovie() {
       headers["user-agent"]
     )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
+
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    let lastTap = 0;
+    let startX = 0;
+    let endX = 0;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+      endX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+      const deltaX = endX - startX;
+      const width = videoEl.offsetWidth;
+
+      if (Math.abs(deltaX) > 60) {
+        if (deltaX > 0) {
+          playerRef.current.currentTime(playerRef.current.currentTime() - 5);
+          setTouchFeedback("⏪ Rewind 5s");
+        } else {
+          playerRef.current.currentTime(playerRef.current.currentTime() + 5);
+          setTouchFeedback("⏩ Forward 5s");
+        }
+        setTimeout(() => setTouchFeedback(""), 1000);
+      }
+    };
+
+    const handleDoubleTap = (e) => {
+      const currentTime = new Date().getTime();
+      const tapX = e.changedTouches[0].clientX;
+      const videoWidth = videoEl.offsetWidth;
+
+      if (currentTime - lastTap < 300) {
+        const isLeft = tapX < videoWidth / 2;
+        if (isLeft) {
+          playerRef.current.currentTime(playerRef.current.currentTime() - 10);
+          setTouchFeedback("⏪ Rewind 10s");
+        } else {
+          playerRef.current.currentTime(playerRef.current.currentTime() + 10);
+          setTouchFeedback("⏩ Forward 10s");
+        }
+        setTimeout(() => setTouchFeedback(""), 1000);
+      }
+      lastTap = currentTime;
+    };
+
+    videoEl.addEventListener("touchstart", handleTouchStart);
+    videoEl.addEventListener("touchmove", handleTouchMove);
+    videoEl.addEventListener("touchend", handleTouchEnd);
+    videoEl.addEventListener("touchend", handleDoubleTap);
+
+    return () => {
+      videoEl.removeEventListener("touchstart", handleTouchStart);
+      videoEl.removeEventListener("touchmove", handleTouchMove);
+      videoEl.removeEventListener("touchend", handleTouchEnd);
+      videoEl.removeEventListener("touchend", handleDoubleTap);
+    };
+  }, []);
 
   useEffect(() => {
     if (!movieLink) return;
@@ -125,10 +190,10 @@ function LiveMovie() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6 flex flex-col items-center justify-center">
       {/* Title */}
       <div className="text-center mb-4">
-        <h1 className="text-4xl font-extrabold text-white">
+        <h1 className="text-2xl sm:text-4xl font-extrabold">
           {isFetchingLinks
             ? "Please Wait..."
             : downloadLinks.length > 0 && !error
@@ -144,14 +209,13 @@ function LiveMovie() {
         </span>
       </div>
 
-      {/* Error Message */}
       {error && <div className="mb-4 text-red-500 font-semibold">{error}</div>}
 
       {/* Video Frame Container */}
       <div className="w-full max-w-4xl mx-auto relative rounded-lg overflow-hidden border border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.2)] bg-[#111]">
         {(isLoading || isFetchingLinks) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-10 space-y-4">
-            <div className="w-12 h-12 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-t-white border-transparent rounded-full animate-spin"></div>
             <div className="text-white font-medium">
               {isFetchingLinks
                 ? "Fetching Different resolution links..."
@@ -159,6 +223,15 @@ function LiveMovie() {
             </div>
           </div>
         )}
+
+        {touchFeedback && (
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="bg-black bg-opacity-70 text-white text-xl px-4 py-2 rounded-lg animate-pulse">
+              {touchFeedback}
+            </div>
+          </div>
+        )}
+
         <div data-vjs-player className="aspect-video">
           <video
             ref={videoRef}
@@ -168,9 +241,8 @@ function LiveMovie() {
       </div>
 
       {/* Quality Buttons */}
-      <div className="flex space-x-3 mt-4 flex-wrap justify-center max-w-4xl">
+      <div className="flex flex-wrap justify-center mt-4 gap-2 px-2 max-w-3xl">
         {downloadLinks.map((link, index) => {
-          // If resolution has something like "480p", "720p", show that, else show full text (to avoid "Quality 1/2" fallback)
           const resolutionMatch = link.url.match(/\d+p/);
           const label = resolutionMatch
             ? resolutionMatch[0]
