@@ -11,7 +11,6 @@ import { auth } from "./firebase/firebaseConfig.js";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import RequestMovie from "./components/RequestMovie";
 
-
 import LiveMovie from "./components/LiveMovie.jsx";
 
 function App() {
@@ -54,13 +53,16 @@ function App() {
             path="/movie-detail/:movie_id"
             element={<IndividualMovieLister />}
           />
+
+          <Route path="/movie-detail/:movie_id/Watch" element={<LiveMovie />} />
+
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route
             path="/request-movie"
             element={<RequestMovie user={user} loading={loading} />}
           />
+
         </Routes>
-       
       </div>
       <Toaster />
     </div>

@@ -3,7 +3,15 @@ import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { BadgeCheck } from "lucide-react";
 
+import { useLocation } from "react-router-dom";
+
 function LiveMovie() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const downloadPageLink = params.get("movieLink");
+
+  console.log(downloadPageLink);
+
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,9 +81,9 @@ function LiveMovie() {
     });
 
     player.ready(() => {
-      const bigPlayButton = playerRef.current?.el()?.querySelector(
-        ".vjs-big-play-button"
-      );
+      const bigPlayButton = playerRef.current
+        ?.el()
+        ?.querySelector(".vjs-big-play-button");
       if (bigPlayButton) {
         bigPlayButton.style.display = "none";
       }

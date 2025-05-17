@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BASE_URL } from "../config.js";
 import { AiOutlineClose } from "react-icons/ai"; // Add this at the top with other imports
@@ -16,6 +16,15 @@ function IndividualMovieLister() {
   const [downloadLinks, setDownloadLinks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loadingInModal, setLoadingInModal] = useState(true);
+
+
+  const navigate = useNavigate();
+
+  const handleWatchMovie = ()=>{
+     navigate(`/movie-detail/${movie_id}/Watch?movieLink=${encodeURIComponent(movie.download_page_link)}`);
+  }
+
+
 
   const handleDownload = (url, headers) => {
     const isVideoFile = /\.(mp4|mkv|avi|mov|flv|wmv)(\?.*)?$/i.test(url);
@@ -217,6 +226,35 @@ function IndividualMovieLister() {
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Go to Download Section
             </span>
+            
+          </motion.button>
+
+           <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ duration: 1 }}
+            onClick={handleWatchMovie}
+            disabled={isLoading}
+            className="relative flex justify-center items-center gap-2 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700"
+          >
+            {isLoading && (
+              <motion.div
+                className="absolute flex justify-center items-center"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  border: "4px solid transparent",
+                  borderTopColor: "white",
+                  borderRadius: "50%",
+                }}
+              />
+            )}
+
+            <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
+              Watch Movie
+            </span>
+            
           </motion.button>
         </div>
       </div>
@@ -304,14 +342,3 @@ function IndividualMovieLister() {
 }
 
 export default IndividualMovieLister;
-
-
-
-
-
-
-
-
-
-
-
