@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BASE_URL } from "../config.js";
 import { AiOutlineClose } from "react-icons/ai"; // Add this at the top with other imports
@@ -17,14 +17,15 @@ function IndividualMovieLister() {
   const [showModal, setShowModal] = useState(false);
   const [loadingInModal, setLoadingInModal] = useState(true);
 
-
   const navigate = useNavigate();
 
-  const handleWatchMovie = ()=>{
-     navigate(`/movie-detail/${movie_id}/Watch?movieLink=${encodeURIComponent(movie.download_page_link)}`);
-  }
-
-
+  const handleWatchMovie = () => {
+    navigate(
+      `/movie-detail/${movie_id}/Watch?movieLink=${encodeURIComponent(
+        movie.download_page_link
+      )}`
+    );
+  };
 
   const handleDownload = (url, headers) => {
     const isVideoFile = /\.(mp4|mkv|avi|mov|flv|wmv)(\?.*)?$/i.test(url);
@@ -200,13 +201,15 @@ function IndividualMovieLister() {
           </span>
         </div>
 
-        <div className="w-full flex justify-center mb-6">
+        <div className="w-full flex flex-wrap justify-center gap-4 mb-6 px-4">
           <motion.button
             whileTap={{ scale: 0.85 }}
             transition={{ duration: 1 }}
             onClick={handleDownloadPage}
             disabled={isLoading}
-            className="relative flex justify-center items-center gap-2 bg-sky-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-sky-700"
+            className="relative flex justify-center items-center gap-2 bg-sky-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-sky-700
+               flex-1 min-w-[200px] max-w-xs
+               sm:flex-auto"
           >
             {isLoading && (
               <motion.div
@@ -226,15 +229,16 @@ function IndividualMovieLister() {
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Go to Download Section
             </span>
-            
           </motion.button>
 
-           <motion.button
+          <motion.button
             whileTap={{ scale: 0.85 }}
             transition={{ duration: 1 }}
             onClick={handleWatchMovie}
             disabled={isLoading}
-            className="relative flex justify-center items-center gap-2 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700"
+            className="relative flex justify-center items-center gap-2 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700
+               flex-1 min-w-[200px] max-w-xs
+               sm:flex-auto"
           >
             {isLoading && (
               <motion.div
@@ -254,7 +258,6 @@ function IndividualMovieLister() {
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Watch Movie
             </span>
-            
           </motion.button>
         </div>
       </div>
