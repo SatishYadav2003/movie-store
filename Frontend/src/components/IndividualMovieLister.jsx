@@ -84,7 +84,7 @@ function IndividualMovieLister() {
         navigate(`/movie-detail/${movie.movie_id}`, { replace: true });
       }
       if (openMovieRoute) {
-        handleWatchMovie();
+        // handleWatchMovie();
         navigate(
           `/movie-detail/${movie_id}/Watch?movieLink=${encodeURIComponent(
             movie.download_page_link
