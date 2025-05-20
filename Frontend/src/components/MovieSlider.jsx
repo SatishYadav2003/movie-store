@@ -110,7 +110,7 @@ function MovieSlider() {
                         {movie["Movie Description"]}
                       </p>
                       <Link
-                        to={`/movie-detail/${movie.movie_id}?openModal=true`}
+                        to={`/movie-detail/${movie.movie_id}?isDownload=true`}
                         className="inline-block mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 transition-all text-white font-semibold rounded"
                       >
                         🎬 Download Movie

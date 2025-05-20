@@ -21,7 +21,7 @@ function IndividualMovieLister() {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const openModalOnLoad = queryParams.get("openModal") === "true";
+  const openDownloadModal = queryParams.get("isDownload") === "true";
 
   const handleWatchMovie = () => {
     navigate(
@@ -77,10 +77,10 @@ function IndividualMovieLister() {
   };
 
   useEffect(() => {
-    if (!isMovieLoading && movie && openModalOnLoad) {
+    if (!isMovieLoading && movie && openDownloadModal) {
       handleDownloadPage();
     }
-  }, [isMovieLoading, movie, openModalOnLoad]);
+  }, [isMovieLoading, movie, oopenDownloadModal]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
