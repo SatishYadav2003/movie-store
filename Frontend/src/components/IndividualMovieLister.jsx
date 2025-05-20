@@ -22,6 +22,7 @@ function IndividualMovieLister() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const openDownloadModal = queryParams.get("isDownload") === "true";
+  const openMovieRoute = queryParams.get("isWatch") === "true";
 
   const handleWatchMovie = () => {
     navigate(
@@ -77,10 +78,17 @@ function IndividualMovieLister() {
   };
 
   useEffect(() => {
-    if (!isMovieLoading && movie && openDownloadModal) {
-      handleDownloadPage();
+    if (!isMovieLoading && movie) {
+      if (openDownloadModal) {
+        handleDownloadPage();
+      } else if (openMovieRoute) {
+        handleWatchMovie();
+      }
+
+      const cleanUrl = `/movie-detail/${movie.movie_id || ""}`;
+      window.history.replaceState(null, "", cleanUrl);
     }
-  }, [isMovieLoading, movie, oopenDownloadModal]);
+  }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
