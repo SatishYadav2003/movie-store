@@ -226,7 +226,7 @@ function IndividualMovieLister() {
             )}
 
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
-              Go to Download Section
+              Download Movie
             </span>
           </motion.button>
 
