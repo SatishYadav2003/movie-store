@@ -239,9 +239,7 @@ function IndividualMovieLister() {
                sm:flex-auto"
           >
             <motion.div />
-            <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
-              Watch Movie
-            </span>
+            <span>Watch Movie</span>
           </motion.button>
         </div>
       </div>
