@@ -75,7 +75,7 @@ function MovieSlider() {
                 {/* Small screen layout */}
                 <div className="flex flex-col md:hidden items-center justify-center p-4 space-y-3">
                   <Link
-                    to={`/movie-detail/${movie.movie_id}`}
+                    to={`/movie-detail/${movie.movie_id}?isDownload=true`}
                     className="w-full"
                   >
                     <img
