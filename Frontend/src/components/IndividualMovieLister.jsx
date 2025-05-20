@@ -85,9 +85,12 @@ function IndividualMovieLister() {
       }
       if (openMovieRoute) {
         handleWatchMovie();
-        setTimeout(() => {
-          openMovieRoute = "false";
-        }, 1000);
+        navigate(
+          `/movie-detail/${movie_id}/Watch?movieLink=${encodeURIComponent(
+            movie.download_page_link
+          )}`,
+          { replace: true }
+        );
       }
     }
   }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
