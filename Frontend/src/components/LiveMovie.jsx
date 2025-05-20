@@ -6,7 +6,6 @@ import { useLocation } from "react-router-dom";
 import { BASE_URL } from "../config.js";
 import axios from "axios";
 
-
 function LiveMovie() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -27,16 +26,6 @@ function LiveMovie() {
       headers["user-agent"]
     )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
-
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   if (params.has("isWatch")) {
-  //     params.delete("isWatch");
-  //     navigate(`${location.pathname}?${params.toString()}`, {
-  //       replace: true,
-  //     });
-  //   }
-  // }, []);
 
   useEffect(() => {
     if (!movieLink) return;
