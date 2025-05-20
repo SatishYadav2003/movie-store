@@ -28,15 +28,15 @@ function LiveMovie() {
     )}&cookie=${encodeURIComponent(headers.cookie)}`;
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.has("isWatch")) {
-      params.delete("isWatch");
-      navigate(`${location.pathname}?${params.toString()}`, {
-        replace: true,
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   if (params.has("isWatch")) {
+  //     params.delete("isWatch");
+  //     navigate(`${location.pathname}?${params.toString()}`, {
+  //       replace: true,
+  //     });
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (!movieLink) return;
