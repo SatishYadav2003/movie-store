@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BASE_URL } from "../config.js";
-import { AiOutlineClose } from "react-icons/ai"; // Add this at the top with other imports
+import { AiOutlineClose } from "react-icons/ai";
 
 function IndividualMovieLister() {
   const { movie_id } = useParams();
@@ -39,7 +39,7 @@ function IndividualMovieLister() {
 
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = ""; // hint browser to download
+      a.download = "";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -63,13 +63,12 @@ function IndividualMovieLister() {
 
       console.log(response.data);
 
-      // Assuming the response contains the download links with different resolutions
       setDownloadLinks(response.data.downloadLinks);
     } catch (error) {
       toast.error("Failed to fetch download links");
     } finally {
       setIsLoading(false);
-      setLoadingInModal(false); // Stop loading spinner inside modal
+      setLoadingInModal(false);
     }
   };
 
@@ -235,25 +234,22 @@ function IndividualMovieLister() {
             whileTap={{ scale: 0.85 }}
             transition={{ duration: 1 }}
             onClick={handleWatchMovie}
-            disabled={isLoading}
             className="relative flex justify-center items-center gap-2 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700
                flex-1 min-w-[200px] max-w-xs
                sm:flex-auto"
           >
-            {isLoading && (
-              <motion.div
-                className="absolute flex justify-center items-center"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                style={{
-                  width: 20,
-                  height: 20,
-                  border: "4px solid transparent",
-                  borderTopColor: "white",
-                  borderRadius: "50%",
-                }}
-              />
-            )}
+            <motion.div
+              className="absolute flex justify-center items-center"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              style={{
+                width: 20,
+                height: 20,
+                border: "4px solid transparent",
+                borderTopColor: "white",
+                borderRadius: "50%",
+              }}
+            />
 
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Watch Movie
