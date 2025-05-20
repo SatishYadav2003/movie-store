@@ -22,7 +22,7 @@ function IndividualMovieLister() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const openDownloadModal = queryParams.get("isDownload") === "true";
-  const openMovieRoute = queryParams.get("isWatch") === "true";
+  let openMovieRoute = queryParams.get("isWatch") === "true";
 
   const handleWatchMovie = () => {
     navigate(
@@ -85,6 +85,9 @@ function IndividualMovieLister() {
       }
       if (openMovieRoute) {
         handleWatchMovie();
+        setTimeout(() => {
+          openMovieRoute = "false";
+        }, 1000);
       }
     }
   }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
