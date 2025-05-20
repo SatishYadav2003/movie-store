@@ -83,8 +83,11 @@ function IndividualMovieLister() {
         handleDownloadPage();
         navigate(`/movie-detail/${movie.movie_id}`, { replace: true });
       }
+      if (openMovieRoute) {
+        handleWatchMovie();
+      }
     }
-  }, [isMovieLoading, movie, openDownloadModal]);
+  }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
