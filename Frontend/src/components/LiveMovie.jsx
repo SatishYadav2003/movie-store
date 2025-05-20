@@ -207,8 +207,6 @@
 
 // export default LiveMovie;
 
-
-
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -337,7 +335,6 @@ function LiveMovie() {
 
   return (
     <div className="min-h-screen bg-black text-white p-4 flex flex-col items-center justify-center">
-      
       <div className="text-center mb-6 max-w-xl w-full px-4 min-h-[5.5rem] sm:min-h-[6rem]">
         <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
           {isFetchingLinks
