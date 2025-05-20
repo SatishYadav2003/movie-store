@@ -85,8 +85,10 @@ function IndividualMovieLister() {
         handleWatchMovie();
       }
 
-      const cleanUrl = `/movie-detail/${movie.movie_id || ""}`;
-      window.history.replaceState(null, "", cleanUrl);
+      // const cleanUrl = `/movie-detail/${movie.movie_id || ""}`;
+      // window.history.replaceState(null, "", cleanUrl);
+
+      navigate(`/movie-detail/${movie.movie_id}`, { replace: true });
     }
   }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
 
