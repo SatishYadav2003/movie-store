@@ -81,16 +81,10 @@ function IndividualMovieLister() {
     if (!isMovieLoading && movie) {
       if (openDownloadModal) {
         handleDownloadPage();
-      } else if (openMovieRoute) {
-        handleWatchMovie();
+        navigate(`/movie-detail/${movie.movie_id}`, { replace: true });
       }
-
-      // const cleanUrl = `/movie-detail/${movie.movie_id || ""}`;
-      // window.history.replaceState(null, "", cleanUrl);
-
-      navigate(`/movie-detail/${movie.movie_id}`, { replace: true });
     }
-  }, [isMovieLoading, movie, openDownloadModal, openMovieRoute]);
+  }, [isMovieLoading, movie, openDownloadModal]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
