@@ -238,19 +238,7 @@ function IndividualMovieLister() {
                flex-1 min-w-[200px] max-w-xs
                sm:flex-auto"
           >
-            <motion.div
-              className="absolute flex justify-center items-center"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              style={{
-                width: 20,
-                height: 20,
-                border: "4px solid transparent",
-                borderTopColor: "white",
-                borderRadius: "50%",
-              }}
-            />
-
+            <motion.div />
             <span className={`${isLoading ? "opacity-0" : "opacity-100"}`}>
               Watch Movie
             </span>
