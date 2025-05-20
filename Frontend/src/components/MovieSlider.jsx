@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
@@ -75,7 +74,10 @@ function MovieSlider() {
               <div key={idx}>
                 {/* Small screen layout */}
                 <div className="flex flex-col md:hidden items-center justify-center p-4 space-y-3">
-                  <Link to={`/movie-detail/${movie.movie_id}`} className="w-full">
+                  <Link
+                    to={`/movie-detail/${movie.movie_id}`}
+                    className="w-full"
+                  >
                     <img
                       src={movie.movie_img_url}
                       alt={movie["Movie Name"]}
@@ -108,7 +110,7 @@ function MovieSlider() {
                         {movie["Movie Description"]}
                       </p>
                       <Link
-                        to={`/movie-detail/${movie.movie_id}`}
+                        to={`/movie-detail/${movie.movie_id}?openModal=true`}
                         className="inline-block mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 transition-all text-white font-semibold rounded"
                       >
                         🎬 Download Movie

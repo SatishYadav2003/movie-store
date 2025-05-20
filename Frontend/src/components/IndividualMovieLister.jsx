@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BASE_URL } from "../config.js";
 import { AiOutlineClose } from "react-icons/ai";
@@ -18,6 +18,10 @@ function IndividualMovieLister() {
   const [loadingInModal, setLoadingInModal] = useState(true);
 
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const openModalOnLoad = queryParams.get("openModal") === "true";
 
   const handleWatchMovie = () => {
     navigate(
@@ -71,6 +75,12 @@ function IndividualMovieLister() {
       setLoadingInModal(false);
     }
   };
+
+  useEffect(() => {
+    if (!isMovieLoading && movie && openModalOnLoad) {
+      handleDownloadPage();
+    }
+  }, [isMovieLoading, movie, openModalOnLoad]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
